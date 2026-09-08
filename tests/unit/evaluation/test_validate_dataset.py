@@ -6,7 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from validate_dataset import validate
+from scripts.evaluation.validate_dataset import validate
+
+EVALUATION_ROOT = Path(__file__).resolve().parents[3] / 'evaluation'
 
 
 class DatasetValidationTests(unittest.TestCase):
@@ -15,7 +17,7 @@ class DatasetValidationTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / 'dataset'
-        shutil.copytree(Path(__file__).parent / 'dev/synthetic-v1', self.root)
+        shutil.copytree(EVALUATION_ROOT / 'datasets/archive/synthetic-v1', self.root)
         self.cases = self.read_lines('cases.jsonl')
         self.notes = self.read_lines('annotations.jsonl')
 

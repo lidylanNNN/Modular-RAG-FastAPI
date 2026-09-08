@@ -5,12 +5,17 @@ import sys
 import unicodedata
 from pathlib import Path
 
-from validate_dataset import load_lines, require, validate
+if __package__:
+    from .validate_dataset import load_lines, require, validate
+else:
+    from validate_dataset import load_lines, require, validate
+
+EVALUATION_ROOT = Path(__file__).resolve().parents[2] / 'evaluation'
 
 
 def validate_suite(base: Path) -> dict:
     '''按协议检查所有活动数据集；跨 split 的身份或问题重复会导致失败。'''
-    protocol = json.loads((base / 'eval_protocol.json').read_text(encoding='utf-8'))
+    protocol = json.loads((base / 'protocols/development.json').read_text(encoding='utf-8'))
     seen = {name: {} for name in ('leakage_group', 'document_id', 'content_hash', 'normalized_question')}
     reports = []
     for entry in protocol['datasets']:
@@ -41,7 +46,7 @@ def validate_suite(base: Path) -> dict:
 
 if __name__ == '__main__':
     try:
-        print(json.dumps(validate_suite(Path(__file__).resolve().parent), ensure_ascii=False, indent=2))
+        print(json.dumps(validate_suite(EVALUATION_ROOT), ensure_ascii=False, indent=2))
     except (ValueError, KeyError, OSError) as error:
         print(f'INVALID SUITE: {error}', file=sys.stderr)
         sys.exit(1)

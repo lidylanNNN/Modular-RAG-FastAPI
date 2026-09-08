@@ -1,6 +1,6 @@
 # 合成开发评测集
 
-此目录保留为历史基础夹具。当前开发采用 [synthetic-v2](../synthetic-v2/README.md)，其中修正了旧题证据范围并增加复杂场景；不要把两套题视为互相独立的数据集合。
+此目录保留为历史基础夹具。当前开发采用 [synthetic-v2](../../dev/synthetic-v2/README.md)，其中修正了旧题证据范围并增加复杂场景；不要把两套题视为互相独立的数据集合。
 
 这套资料用于 Engineering RAG 的 M0 开发准备，共 20 题：16 道可回答、4 道不可回答。全部工程参数、标识符和失效案例均为虚构，不可用于真实车辆设计，也不能作为真实业务检索效果的证据。
 
@@ -22,7 +22,7 @@
 ## 使用顺序
 
 1. 阅读 cases.md，对照 DOCX 条款与 XLSX 单元格复核答案和原文锚点。确认无答案题在指定范围内确实没有答案，不依据模型是否答出进行标注。
-2. 运行 `python evaluation/validate_dataset.py evaluation/dev/synthetic-v1`。使用已有 Python 解释器即可，校验器只依赖标准库；这一步检查结构与原文一致性，不评价语义答案是否正确。
+2. 运行 `python scripts/evaluation/validate_dataset.py evaluation/datasets/archive/synthetic-v1`。使用已有 Python 解释器即可，校验器只依赖标准库；这一步检查结构与原文一致性，不评价语义答案是否正确。
 3. 仅将 corpus_manifest.json 的 sources.path 列出的三份原文件入库。不要递归摄入整个 evaluation 目录，否则题目、标准答案和定位目录会泄漏到检索语料。
 4. 两版 DOCX 使用相同 document_id，先入 1.0 再入 2.0；若 API 生成自己的 ID，建立显式的 fixture-ID 到 runtime-ID 映射，不能将它们当成两个不同逻辑文档。默认查询仅使用 current；DEV-015 指定旧版，DEV-016 显式比较两版。
 5. 建立检索结果后，按原文 spans 映射到候选 Chunk，记录每题来源和错误类型；不能用文件名相同代替证据命中。

@@ -1,5 +1,0 @@
-用于fastapi架构可以处理多种文档RAG知识库问答系统和tool插件
-
-正式开发规格：[DEV_SPEC.md](DEV_SPEC.md)。版本变更记录位于文档开头，历史规格仅供追溯。
-
-评测资料与跨平台说明：[evaluation/README.md](evaluation/README.md)。

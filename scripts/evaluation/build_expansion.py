@@ -7,10 +7,13 @@ import shutil
 import uuid
 from pathlib import Path
 
-from validate_dataset import xlsx_cells
+if __package__:
+    from .validate_dataset import xlsx_cells
+else:
+    from validate_dataset import xlsx_cells
 
-ROOT = Path(__file__).resolve().parent
-OLD = ROOT / 'dev/synthetic-v1'
+ROOT = Path(__file__).resolve().parents[2] / 'evaluation'
+OLD = ROOT / 'datasets/archive/synthetic-v1'
 
 
 def read_json(path: Path) -> dict | list:
@@ -144,9 +147,9 @@ def render_cases(folder: Path, cases: list[dict], notes: list[dict]) -> None:
 
 def build(split: str) -> None:
     '''保留旧夹具，生成新清单、题目和派生标注；仅重建机器草案。'''
-    definitions = read_json(ROOT / 'expansion_sources.json')['workbooks']
-    raw_cases = read_json(ROOT / 'expansion_cases.json')[split]
-    relative = 'dev/synthetic-v2' if split == 'dev' else 'validation/synthetic-cooling-v1'
+    definitions = read_json(ROOT / 'seeds/expansion_sources.json')['workbooks']
+    raw_cases = read_json(ROOT / 'seeds/expansion_cases.json')[split]
+    relative = 'datasets/dev/synthetic-v2' if split == 'dev' else 'datasets/validation/synthetic-cooling-v1'
     folder = ROOT / relative
     # 人工登记后禁止构建器覆盖复核内容。
     existing = folder / 'annotations.jsonl'
@@ -169,7 +172,7 @@ def build(split: str) -> None:
     for definition in definitions:
         if definition['dataset'] == relative:
             append_workbook(folder, definition, sources, units, lookup)
-    manifest = dict(dataset_id=relative.replace('/', '-'), synthetic=True, split=split,
+    manifest = dict(dataset_id=relative.removeprefix('datasets/').replace('/', '-'), synthetic=True, split=split,
                     parser_identity='fixture-locator-v1', sources=sources,
                     notice='合成资料，非真实业务效果证据。')
     manifest['corpus_manifest_id'] = digest(json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode())

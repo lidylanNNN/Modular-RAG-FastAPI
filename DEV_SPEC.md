@@ -1,12 +1,13 @@
 # Engineering RAG — DEV_SPEC
 
-当前规格版本：**v1.2**；产品范围：**V1**；最后更新：**2026-09-08**。
+当前规格版本：**v1.3**；产品范围：**V1**；最后更新：**2026-09-08**。
 
 ## 版本变更目录
 
 | 规格版本 | 日期 | 主要变更 | 对应章节 |
 |---|---|---|---|
-| v1.2（当前） | 2026-09-08 | 统一单索引、N/M/K 检索预算、Source ID 引用、分层评测与 B3a/B3b 对照；前移快照及容器基础；审核补齐基线结果契约、排序评分口径和阶段能力限制；正式文件改为 DEV_SPEC.md | 3.5–3.8、4.2–4.6、4.9、5.3、6.3–6.7、7 |
+| v1.3（当前） | 2026-09-08 | 定义正式项目目录、模块落位和路径规则；拆分评测数据、维护脚本、单元测试、组件夹具和审查报告；旧开发集移入 archive；同步入口、协议及 CI，保持数据身份不变 | 2.6、7.3；README.md |
+| v1.2 | 2026-09-08 | 统一单索引、N/M/K 检索预算、Source ID 引用、分层评测与 B3a/B3b 对照；前移快照及容器基础；审核补齐基线结果契约、排序评分口径和阶段能力限制；正式文件改为 DEV_SPEC.md | 3.5–3.8、4.2–4.6、4.9、5.3、6.3–6.7、7 |
 | v1.1 | 2026-09-07；跨平台补充于 2026-09-08 | 补充 SourceSpan、Claims 验证、快照发布、原文锚点评测、资源预算、进度表和跨平台要求；加入合成开发集状态 | 3–8；[历史规格](docs/history/engineering-rag_DEV_SPEC_v1.md) |
 | v1（初稿） | 未记录 | 建立四格式解析、统一 Chunk、混合检索、生成和评测的 V1 范围 | 1–9；初稿演变见 Git 历史 |
 
@@ -20,6 +21,8 @@
 
 >
 > **v1.2 修订摘要**：删除独立 `Evidence` 事实实体；统一 Elasticsearch 单索引文档；明确 `Retriever Top-N → RRF Top-M → Reranker Top-K`；将 RRF 定位为候选融合与预算控制；Citation 改为请求内 `Source ID` 映射；Evaluation 按 Retrieval / Reranking / Generation 分层；补充 `Union + Reranker` 与 `RRF + Reranker` 对照；同时前移最小 Snapshot、版本生命周期和 Linux 容器骨架，并将 `search_knowledge` 实现纳入 Reranker 闭环。
+
+> **v1.3 修订摘要**：固定第 2.6 节目录规范并迁移现有文件。此次仅调整工程组织与路径，不改变 Chunk / EvalCase 契约、原始语料、题目事实、证据身份或发布门槛。
 
 ---
 
@@ -251,6 +254,111 @@ BM25 + Dense → RRF → Reranker
 ```
 
 只有 Evaluation / Bad Case 明确证明某类 Query 需要独立路径后，V2 才允许引入 Router。
+
+---
+
+## 2.6 Repository Layout
+
+目录按职责组织。以下是 V1 的正式目标结构；带“规划”标记的目录/文件在对应里程碑实现时创建，未标记项为当前已有产物。不通过空目录、空模块或 `.gitkeep` 伪装功能已实现。
+
+```text
+Modular-RAG-FastAPI/
+├── DEV_SPEC.md                     # 唯一正式开发规格，版本记录位于文首
+├── README.md                       # 项目入口、当前能力和运行命令
+├── .github/workflows/              # Windows / Linux CI
+├── .gitattributes                  # 文本换行和二进制文件规则
+├── .gitignore
+├── pyproject.toml                  # 规划 M1：Python 包、工具和依赖声明
+├── uv.lock                         # 规划 M1：锁定依赖，和 pyproject.toml 配套
+├── .env.example                    # 规划 M1：环境变量名称及无密钥示例
+├── configs/                        # 规划 M1：可版本化的非敏感默认配置
+│   ├── default.yaml
+│   └── logging.yaml
+├── src/engineering_rag/            # 规划 M1 起：唯一应用 Python 包
+│   ├── bootstrap.py                # 配置、依赖组装与服务生命周期
+│   ├── contracts/                  # Pydantic 数据契约与跨字段约束
+│   ├── config/                     # 配置加载、路径解析和运行预检
+│   ├── ingestion/
+│   │   ├── dispatcher.py
+│   │   ├── parsers/                # DOCX / XLSX / PDF / PPTX 适配器
+│   │   └── chunkers/               # 四种格式分块策略及 SourceSpan 映射
+│   ├── indexing/                   # ES 文档映射、向量写入、快照构建/验证
+│   ├── retrieval/                  # BM25 / Dense / RRF / Reranker
+│   ├── generation/                 # Context、Source Binding、Claims、Verifier、拒答
+│   ├── services/                   # 入库/查询/版本生命周期的公开服务用例
+│   ├── storage/                    # 原件/解析产物、SQLite job/manifest/lease 存储
+│   ├── observability/              # 共享 Trace、日志和时延记录
+│   ├── tools/                     # search_knowledge 薄适配层
+│   ├── api/                       # FastAPI 路由、HTTP Schema 适配和错误映射
+│   └── evaluation/                # 正式指标、锚点映射、实验执行与报告逻辑
+├── scripts/
+│   └── evaluation/                # 当前标准库维护命令；支持脚本和模块调用
+│       ├── validate_dataset.py
+│       ├── validate_suite.py
+│       └── build_expansion.py
+├── tests/
+│   ├── unit/evaluation/           # 当前资料校验器回归测试
+│   ├── integration/              # 规划 M4 起：ES / Snapshot / HTTP 集成测试
+│   ├── e2e/                      # 规划：锁定真实模型的端到端验收
+│   └── fixtures/
+│       └── evaluation/           # 组件输入与预期结果，不进入知识库
+├── evaluation/                    # 评测资料根目录，不是可导入的业务包
+│   ├── README.md
+│   ├── datasets/
+│   │   ├── dev/synthetic-v2/      # 当前 40 题开发集
+│   │   ├── validation/synthetic-cooling-v1/  # 12 题验证草案
+│   │   ├── test/                 # 规划 M11：独立冻结发布集
+│   │   └── archive/synthetic-v1/ # 历史 20 题，仅供回归和追溯
+│   ├── protocols/development.json # 当前未冻结协议；路径基准为 evaluation/
+│   ├── schemas/                  # 评测附属文件的 JSON Schema
+│   └── seeds/                    # 合成构建输入；不可作为摄入资料
+├── docs/
+│   ├── history/                  # 历史规格，不具备当前规格效力
+│   ├── reviews/                  # 带日期的设计/数据审查记录
+│   └── reports/                  # 规划：筛选归档的真实实验与发布报告
+├── deploy/                       # 规划 M1/M12：容器骨架与最终部署配置
+│   ├── Dockerfile
+│   └── compose.yaml
+├── artifacts/                    # 按需生成并忽略：运行结果、Trace、预览
+└── .local/                       # 按需生成并忽略：本地数据库、原件和模型缓存
+```
+
+### 2.6.1 模块归属与依赖
+
+- 应用源码统一放在 `src/engineering_rag/`，不再平行引入承载同类业务的 `app/`、`backend/` 或根目录业务模块。
+- `services/` 提供第 2.4 节要求的公开服务入口，协调 Ingestion、Indexing、Retrieval、Generation 和 Storage；HTTP、Tool、CLI 复用这些入口。它们不相互复制检索、发布或生成逻辑。
+- `contracts/` 和 `config/` 不导入 API、Tool 或测试。业务包不能导入 `scripts/`、`tests/`，也不能把评测目录作为运行依赖。`storage/` 提供持久化适配，发布步骤由 services/indexing 编排，不在 API 路由中操作活动指针。
+- `src/engineering_rag/evaluation/` 承载正式评测实现，按公开服务接口调用系统；仓库级 `evaluation/` 只放数据、协议、Schema 和构建输入。这两者名称相同但用途和导入边界不同。
+- `scripts/evaluation/` 现有脚本仅检查/构建文件夹具，使用 Python 标准库；今后新增实验 CLI 应薄封装正式评测实现，不复制指标逻辑。测试允许导入这些维护脚本，但不反向依赖测试。
+- 测试路径按被测职责镜像组织；当前 `tests/unit/evaluation/` 的回归测试属于资料校验器。`tests/fixtures/evaluation/` 中未接入实现的用例不得计为测试通过。
+
+### 2.6.2 数据集内部结构与路径
+
+每个有独立 manifest 的数据集保持自包含目录：
+
+```text
+<dataset>/
+├── README.md
+├── corpus/                        # 唯一允许摄入的原件所在目录
+├── corpus_manifest.json           # 原件哈希、身份、修订、current
+├── source_units.json              # 夹具原文及位置目录
+├── cases.jsonl                    # EvalCase，每行一道题
+├── annotations.jsonl              # 证据引文、复核、泄漏组与冲突依据
+└── cases.md                       # 从标注生成的人读视图
+```
+
+- `sources.path` 始终相对于所在 manifest 的数据集根目录；迁移外层目录不重算原件哈希、revision_id、parse_artifact_id 或 corpus_manifest_id，不修改 GoldAnchor。
+- `evaluation/protocols/development.json` 声明 `path_base=evaluation_root`；其中 datasets、historical_fixtures、Schema 和规格路径均相对于仓库 `evaluation/` 解析，不能相对于协议文件目录或当前工作目录猜测。数据集选择由协议显式列举，禁止递归扫描 archive 参与当前评测。
+- 当前归档和修订集保留相同原件副本是有意的快照隔离：保留身份和可复现性，不改成跨目录软链接。二者属于相同泄漏组，不得当成独立开发/验证样本。后续大规模或真实私有语料采用外部制品存储时需另行定义获取及哈希校验协议。
+- `seeds/` 是构建输入，原件是检索事实源；生成问题、答案、Source Map 模拟数据和审查报告均不可入库。仅按 manifest 的 sources.path 摄入原件。
+- 脚本默认路径基于 `__file__` 定位仓库；显式 CLI 数据目录参数相对于调用方当前目录。应用运行数据目录通过配置传入，生产部署应解析为绝对路径；不硬编码盘符或用户主目录。
+
+### 2.6.3 生成物与变更验收
+
+- `artifacts/`、`.local/`、`.env`、解释器环境和缓存不提交 Git。需要保留的人工确认实验报告归档至 `docs/reports/`，并引用数据/配置哈希，不把临时输出复制进 corpus。
+- 当前已有 `.artifact-work/` 属于本地制作缓存，继续忽略且不被任何正式运行命令依赖；后续预览和日志统一写入 `artifacts/`。
+- 目录迁移必须同步修改导入、协议/种子路径、README、Markdown 链接和 CI，并验证原件/标注哈希保持不变、数据校验通过、测试发现可运行，以及从仓库外调用脚本仍正常。
+- 不为保持旧路径而保留重复脚本或兼容目录；迁移后的命令以 README 为准。新增职责目录或改变现有归属时先更新本节及文首变更表。
 
 ---
 
@@ -1139,7 +1247,7 @@ class EvalCase(BaseModel):
 - 先建立开发 fixtures；验证集用于调参，冻结测试集只用于最终评测。按源文档族/业务案例分组切分，近重复问题、同一案例的不同表述不能跨验证/测试集合泄漏。
 - V1 初始发布目标：测试集至少 120 题，其中至少 80 道可回答题、40 道不可回答题；四种格式各至少 15 道可回答题。版本冲突、精确术语、语义改写、历史失效、多证据各至少 10 题，类别可重叠。数量是目标，非现有数据规模。
 - 每道测试题核对原文证据与 required_facts；歧义标签先裁决再冻结。无可用真实语料时可用脱敏/合成 fixtures 开发，但不能据此宣称真实汽车研发业务效果。
-- `eval_protocol.json` 固定样本划分、指标定义、模型/Prompt/配置版本、人工评分规程与 6.7 的门槛；测试解封前冻结并记录哈希。未填写或未冻结不能发布。
+- `evaluation/protocols/development.json` 固定样本划分、指标定义、模型/Prompt/配置版本、人工评分规程与 6.7 的门槛；测试解封前冻结并记录哈希。未填写或未冻结不能发布。
 - 查看测试结果后若据此改配置或修标签，原测试集转为开发数据；新的发布结论需要新的未参与调参的冻结保留集。失败结果可以如实报告，不得通过事后降低门槛改判通过。
 
 ## Retrieval Metrics
@@ -1294,7 +1402,7 @@ Tool 返回完整 Final Top-K，不加载 LLM tokenizer，也不执行 LLM 上�
 
 离线与在线模型共享硬件时采用资源信号量，优先在线请求；阻塞推理不直接运行在异步 Web event loop 内。记录硬件、冷/热启动、并发、语料规模和 token 用量，分别报告检索与整体请求 p50/p95。
 
-`eval_protocol.json` 还须填写目标硬件、规模、并发和检索/整体 p95 上限（毫秒）。性能门槛可在验证集预跑后确定，但必须在测试解封前冻结；缺值阻止发布，不能用 90 s 故障 deadline 代替性能目标。
+`evaluation/protocols/development.json` 还须填写目标硬件、规模、并发和检索/整体 p95 上限（毫秒）。性能门槛可在验证集预跑后确定，但必须在测试解封前冻结；缺值阻止发布，不能用 90 s 故障 deadline 代替性能目标。
 
 ---
 
@@ -1536,7 +1644,7 @@ Should-answer-but-refused
 - Tool 可独立调用；
 - README 可让另一台机器完成启动。
 
-以上是功能门槛，发布还必须同时满足下表。数值均为 **V1 初始 Target，尚未实测**，可在验证阶段调整；最终值必须在解封测试集前写入冻结的 `eval_protocol.json`。不得以测试失败为由事后降低标准。
+以上是功能门槛，发布还必须同时满足下表。数值均为 **V1 初始 Target，尚未实测**，可在验证阶段调整；最终值必须在解封测试集前写入冻结的 `evaluation/protocols/development.json`。不得以测试失败为由事后降低标准。
 
 | 质量项 | 初始发布目标 | 计分口径 |
 |---|---|---|
@@ -1648,7 +1756,7 @@ Generation / Citation 在 M8 进入第二闭环，再补 PDF / PPTX，避免四�
 
 最后更新：2026-09-08。
 
-当前阶段：开发准备。DEV_SPEC v1.2 的规格修订已完成；已有 40 题修订合成开发集、12 题独立文档族验证草案、评测协议草案及原文/分组校验器。旧 20 题作为历史夹具保留，不能重复计为独立数据。人工复核待完成，尚无应用实现、冻结测试集或模型实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
+当前阶段：开发准备。DEV_SPEC v1.3 的规格修订已完成；已有 40 题修订合成开发集、12 题独立文档族验证草案、评测协议草案及原文/分组校验器。旧 20 题作为历史夹具保留，不能重复计为独立数据。人工复核待完成，尚无应用实现、冻结测试集或模型实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
 
 状态：**未开始 → 进行中 → 待验收 → 已完成**；遇到无法继续的问题标记 **阻塞**，同时写明原因和解除条件。只有满足第 8 章 DoD 且提供验收依据，才能标记已完成。
 

@@ -7,7 +7,7 @@
 阅读 [cases.md](cases.md)，执行 [cases.jsonl](cases.jsonl)。仅摄入 corpus_manifest.json 指定文件，并使用本集独立快照，不能混入开发语料。正式模型运行前必须建立 fixture ID / span 到实际解析产物的映射。
 
 ```text
-python -X utf8 evaluation/validate_dataset.py evaluation/validation/synthetic-cooling-v1
+python -X utf8 scripts/evaluation/validate_dataset.py evaluation/datasets/validation/synthetic-cooling-v1
 ```
 
 记录真实 reviewer、带时区的 reviewed_at、review_notes 后才能将 annotations.jsonl 状态改为 reviewed。模型相关性 judgment 应在实际候选产生后填写；本目录不预造 Chunk 或 Source ID。

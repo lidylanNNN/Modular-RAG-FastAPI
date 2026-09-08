@@ -190,7 +190,7 @@ def validate(root: Path) -> dict:
 
 
 if __name__ == '__main__':
-    folder = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).parent / 'dev/synthetic-v2'
+    folder = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parents[2] / 'evaluation/datasets/dev/synthetic-v2'
     try:
         print(json.dumps(validate(folder), ensure_ascii=False, indent=2))
     except (ValueError, KeyError, OSError, ET.ParseError) as error:

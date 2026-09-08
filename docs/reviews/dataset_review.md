@@ -1,8 +1,8 @@
 # 开发评测集检查与补充清单
 
-检查日期：2026-09-08。依据：[DEV_SPEC.md](../DEV_SPEC.md) 当前 v1.2。对象：[synthetic-v1](dev/synthetic-v1/README.md)。
+检查日期：2026-09-08。依据：[DEV_SPEC.md](../../DEV_SPEC.md) 当前 v1.2。对象：[synthetic-v1](../../evaluation/datasets/archive/synthetic-v1/README.md)。
 
-后续落实（2026-09-08）：已保留原件并建立 [40 题修订开发集](dev/synthetic-v2/README.md)和 [12 题冷却文档族验证草案](validation/synthetic-cooling-v1/README.md)，修正标签范围、补充干扰资料及证据/拒答场景，新增协议草案、候选标注格式及校验器回归测试。以下是修改前的检查记录；人工复核、实际模型评测及后续格式边界资料仍待完成。
+后续落实（2026-09-08）：已保留原件并建立 [40 题修订开发集](../../evaluation/datasets/dev/synthetic-v2/README.md)和 [12 题冷却文档族验证草案](../../evaluation/datasets/validation/synthetic-cooling-v1/README.md)，修正标签范围、补充干扰资料及证据/拒答场景，新增协议草案、候选标注格式及校验器回归测试。以下是修改前的检查记录；人工复核、实际模型评测及后续格式边界资料仍待完成。
 
 结论：保留现有数据作为基础开发夹具；在公平比较检索、分块和精排前，需要修正标签并补充语料与协议。当前不能用于发布验收或真实业务效果结论。本次只检查，不修改题目、源文件或人工复核状态。
 
@@ -13,7 +13,7 @@
 - 18 题 latest、1 题 explicit、1 题 compare；过滤仅覆盖两道版本题的 revision_ids。
 - 20 题全部 human_review_status=pending，全部属于同一泄漏组；没有独立验证集或冻结保留集。
 - 4 道拒答均为 insufficient_evidence；没有版本冲突拒答。每个 evidence group 只有一个 alternative，每个 anchor 只有一个 span。
-- 未找到 eval_protocol.json 或候选相关性 judgment；尚无检索、精排或生成实测结果。
+- 未找到 development.json 或候选相关性 judgment；尚无检索、精排或生成实测结果。
 
 ## 优先修正：会影响评分的现有标签
 

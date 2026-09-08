@@ -18,8 +18,8 @@
 在仓库根目录运行：
 
 ```text
-python -X utf8 evaluation/validate_dataset.py
-python -X utf8 evaluation/validate_suite.py
+python -X utf8 scripts/evaluation/validate_dataset.py
+python -X utf8 scripts/evaluation/validate_suite.py
 ```
 
 第一条默认验证本集，第二条还验证独立冷却文档族及分组隔离。参数为 Python 命令示例，Linux 可使用已有 python3。
