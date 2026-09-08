@@ -1,0 +1,11 @@
+{
+  "status": "fixture_defined_evaluator_not_implemented",
+  "coordinate_system": "Unicode, half-open; synthetic unit u1 canonical_text=abcdefghij",
+  "cases": [
+    {"id":"SPAN-001","purpose":"跨两个 Chunk 的区间并集完整覆盖","groups":[[[{"unit_id":"u1","char_start":0,"char_end":10}]]],"retrieved_spans":[{"unit_id":"u1","char_start":0,"char_end":4},{"unit_id":"u1","char_start":4,"char_end":10}],"expected_group_hits":[true]},
+    {"id":"SPAN-002","purpose":"重叠区间不能掩盖尾部缺失","groups":[[[{"unit_id":"u1","char_start":0,"char_end":10}]]],"retrieved_spans":[{"unit_id":"u1","char_start":0,"char_end":6},{"unit_id":"u1","char_start":4,"char_end":8}],"expected_group_hits":[false]},
+    {"id":"SPAN-003","purpose":"组内任一替代证据即可","groups":[[[{"unit_id":"u1","char_start":0,"char_end":3}],[{"unit_id":"u1","char_start":7,"char_end":10}]]],"retrieved_spans":[{"unit_id":"u1","char_start":7,"char_end":10}],"expected_group_hits":[true]},
+    {"id":"SPAN-004","purpose":"AND 组合缺少第二组","groups":[[[{"unit_id":"u1","char_start":0,"char_end":3}]],[[{"unit_id":"u1","char_start":7,"char_end":10}]]],"retrieved_spans":[{"unit_id":"u1","char_start":0,"char_end":3}],"expected_group_hits":[true,false]},
+    {"id":"SPAN-005","purpose":"同一 anchor 多 span 均须覆盖","groups":[[[{"unit_id":"u1","char_start":0,"char_end":3},{"unit_id":"u1","char_start":7,"char_end":10}]]],"retrieved_spans":[{"unit_id":"u1","char_start":0,"char_end":3}],"expected_group_hits":[false]}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "dev": [
+    {"id":"DEV-021","type":"equivalent_evidence","q":"SYN_AuxReq 在 CAN-A 运行模式下的超时边界是多少？","a":"距最后有效帧达到 150 ms（0.150 s）时置位。","facts":["CAN-A 运行模式","150 ms 与 0.150 s 等价","达到边界即置位"],"groups":[["interfaces:P01","interfaces:P06"]]},
+    {"id":"DEV-022","type":"hard_negative","q":"SYN_AuxReq 在 CAN-B 运行模式下，是 150 ms 还是 240 ms 超时？","a":"CAN-B 运行模式采用 240 ms。","facts":["CAN-B 运行模式","达到 240 ms 置位"],"groups":[["interfaces:P02"]]},
+    {"id":"DEV-023","type":"hard_negative","q":"SYN_AuxReq 在 CAN-A 诊断模式下能直接套用运行模式的 150 ms 吗？","a":"不能，CAN-A 诊断模式的边界为 900 ms。","facts":["不能套用运行模式","诊断模式为 900 ms"],"groups":[["interfaces:P03"]]},
+    {"id":"DEV-024","type":"multi_evidence","q":"运行模式下，CAN-A 的 SYN_AuxReq 发送周期和 SYN_AuxWorker 的任务周期分别是多少？","a":"报文发送周期为 25 ms，任务调度周期为 5 ms。","facts":["报文周期 25 ms","任务周期 5 ms"],"groups":[["interfaces:P04"],["interfaces:P07"]]},
+    {"id":"DEV-025","type":"multi_evidence","q":"SYN-AUX-F01 的历史根因是什么？CAN-A 运行模式应使用哪个超时阈值？","a":"误套了 CAN-B 的 240 ms 参数；CAN-A 运行模式应采用 150 ms。","facts":["历史根因是误套 CAN-B 的 240 ms","CAN-A 应采用 150 ms"],"groups":[["interfaces:P08"],["interfaces:P01","interfaces:P06"]]},
+    {"id":"DEV-026","type":"multi_span","q":"SYN_AuxReq 的 CAN-A 运行模式恢复需要几帧，中途无效帧怎样影响计数？","a":"需要连续 6 帧有效；无效帧使计数归零。","facts":["连续 6 帧有效","无效帧归零"],"groups":[["interfaces:P05"]],"multi_span":true},
+    {"id":"DEV-027","type":"filtered_unanswerable","q":"SYN_PowerReq 的发送周期是多少？仅使用 XLSX 资料。","a":null,"facts":[],"groups":[],"filters":{"file_types":["xlsx"]},"reason":"insufficient_evidence","note":"周期 20 ms 仅在 DOCX R01，XLSX 没有 SYN_PowerReq 的发送周期；不能采用被过滤的来源。"},
+    {"id":"DEV-028","type":"filtered_unanswerable","q":"只根据历史失效表，SYN_COMM_TIMEOUT 当前版的具体毫秒阈值是多少？","a":null,"facts":[],"groups":[],"documents":["failures"],"reason":"insufficient_evidence","note":"F001 要求读取所选规范的阈值，失效表本身不提供当前超时毫秒值。其他资料被 document_ids 排除。"},
+    {"id":"DEV-029","type":"filter_query","q":"在失效案例工作表中，SYN-F005 遗漏了哪些退出要求，如何修正？","a":"遗漏 85 ℃回差与持续 10 s 要求；修正为同时判断退出温度与保持时间。","facts":["遗漏 85 ℃回差","遗漏持续 10 s","温度与保持时间同时判断"],"groups":[["failures:SYN-F005"]],"filters":{"file_types":["xlsx"],"sheet":"失效案例"}},
+    {"id":"DEV-030","type":"filter_query","q":"在指定接口文档的接口规范工作表中，SYN_AuxReq 的 CAN-B 运行超时值是多少？","a":"达到 240 ms 时置位。","facts":["CAN-B 运行模式","240 ms"],"groups":[["interfaces:P02"]],"documents":["interfaces"],"filters":{"file_types":["xlsx"],"sheet":"接口规范"}},
+    {"id":"DEV-031","type":"filtered_unanswerable","q":"只查不存在的工作表“归档参数”，SYN_AuxReq 的周期是多少？","a":null,"facts":[],"groups":[],"filters":{"sheet":"归档参数"},"reason":"insufficient_evidence","note":"sheet 是合法精确过滤值，但语料没有该工作表，检索应为空。不是 InvalidFilter。"},
+    {"id":"DEV-032","type":"version_conflict","q":"按指定两份现行接口规范，SYN_ResetGuard 在初始化模式同一项目配置的唯一超时阈值是多少？","a":null,"facts":[],"groups":[],"documents":["interfaces","conflict"],"reason":"version_conflict","conflict_refs":["interfaces:X01","conflict:X02"],"note":"同一对象、条件和项目配置的两份现行文档分别规定 120 ms 与 180 ms，且同等优先级无覆盖声明。不能按文件名或索引顺序选一个值。"},
+    {"id":"DEV-033","type":"version_query","q":"对照指定两个修订，SYN_ResetGuard 初始化超时条款分别写了什么？","a":"辅助接口规范 X01 为 120 ms，复位接口规范 X02 为 180 ms；二者不一致，不能合并为一个值。","facts":["辅助接口规范 X01 为 120 ms","复位接口规范 X02 为 180 ms","明确不一致"],"groups":[["interfaces:X01"],["conflict:X02"]],"mode":"compare","versions":["interfaces","conflict"]},
+    {"id":"DEV-034","type":"unanswerable","q":"SYN_AuxReq 在 CAN-C 运行模式的超时阈值是多少？","a":null,"facts":[],"groups":[],"reason":"insufficient_evidence","note":"资料只定义该对象的 CAN-A/CAN-B 条件，没有 CAN-C；不能从相近通道外推。"},
+    {"id":"DEV-035","type":"partial_evidence","q":"请同时给出 CAN-A 运行模式 SYN_AuxReq 的发送周期和有效载荷字节数。","a":null,"facts":[],"groups":[],"reason":"insufficient_evidence","note":"P04 提供周期，但语料未给出有效载荷字节数。按整问拒答规则不能仅返回已知周期作为成功答案。"},
+    {"id":"DEV-036","type":"unanswerable","q":"SYN_AuxReq 使用的 CRC 多项式是什么？","a":null,"facts":[],"groups":[],"reason":"insufficient_evidence","note":"资料出现校验失败和有效帧，但没有 CRC 算法或多项式，不能用常见协议知识补齐。"},
+    {"id":"DEV-037","type":"hard_negative","q":"SYN_AuxReq_64 的超时阈值和发送周期分别是多少？","a":"超时为 480 ms，周期为 15 ms。","facts":["完整对象名 SYN_AuxReq_64","480 ms","15 ms"],"groups":[["interfaces:D64"]]},
+    {"id":"DEV-038","type":"hard_negative","q":"SYN_AuxReq_01 的超时阈值是否与无编号 SYN_AuxReq 的 CAN-A 运行规则相同？","a":"不同，SYN_AuxReq_01 为 165 ms，无编号对象 CAN-A 运行模式为 150 ms。","facts":["编号对象 165 ms","无编号对象 CAN-A 运行模式 150 ms","二者不同"],"groups":[["interfaces:D01"],["interfaces:P01","interfaces:P06"]]},
+    {"id":"DEV-039","type":"precise_term","q":"SYN_AuxReq 的 CAN-A 运行模式连续校验失败时，状态码是多少？","a":"状态码为 0x32。","facts":["状态码 0x32"],"groups":[["interfaces:P09"]]},
+    {"id":"DEV-040","type":"semantic_paraphrase","q":"CAN-A 运行模式的 SYN_AuxReq 恢复三帧有效、中间一帧无效、再三帧有效，当前超时能清除吗？","a":"不能；无效帧清零后只有三帧，未达到连续六帧。","facts":["不能清除","无效帧归零","需要连续 6 帧"],"groups":[["interfaces:P05"]],"multi_span":true}
+  ],
+  "validation": [
+    {"id":"VAL-001","type":"precise_term","q":"泵运行且传感器有效时，SYN_CoolFlow 的低流量置位条件是什么？","a":"流量严格低于 2.5 L/min 并连续 4 s。","facts":["严格低于 2.5 L/min","连续 4 s"],"groups":[["cooling:C01"]]},
+    {"id":"VAL-002","type":"semantic_paraphrase","q":"正常泵运行时，流量恰好 2.5 L/min 会开始低流量计时吗？","a":"不会，必须严格低于该边界。","facts":["边界不启动计时","严格小于"],"groups":[["cooling:C01"]]},
+    {"id":"VAL-003","type":"semantic_paraphrase","q":"已有低流量故障后，流量恢复到 3.0 L/min 只保持 6 s 能清除吗？","a":"不能，要求连续 7 s。","facts":["6 s 不足","连续 7 s"],"groups":[["cooling:C02"]]},
+    {"id":"VAL-004","type":"precise_term","q":"SYN_CoolTemp 的高温进入和退出条件分别是什么？","a":"达到 65 ℃进入；降至 60 ℃或以下连续 8 s 退出。","facts":["65 ℃进入","不高于 60 ℃","连续 8 s 退出"],"groups":[["cooling:C03"]]},
+    {"id":"VAL-005","type":"semantic_paraphrase","q":"流量传感器无效时，可把读数当正常流量继续判定吗？","a":"不可以，禁止使用读数计算流量故障，应输出传感器不可用。","facts":["禁止使用读数判定","输出不可用","不能视为正常"],"groups":[["cooling:C04"]]},
+    {"id":"VAL-006","type":"history_failure","q":"SYN-COOL-F01 为什么在泵停止后误报，修正后怎样处理？","a":"未判断泵运行条件；修正后泵停止时不启动低流量计时。","facts":["缺少泵运行条件","停止时不启动计时"],"groups":[["cooling:C05"]]},
+    {"id":"VAL-007","type":"multi_evidence","q":"冷却状态发布周期和压力采样周期分别是多少？","a":"状态发布 80 ms，压力采样 40 ms。","facts":["发布 80 ms","采样 40 ms"],"groups":[["cooling:C06"],["cooling:C08"]]},
+    {"id":"VAL-008","type":"hard_negative","q":"保养模式低流量记录能套用正常运行的 2.5 L/min 和 4 s 吗？","a":"不能；保养模式采用 1.5 L/min 和连续 12 s。","facts":["不能套用","1.5 L/min","12 s"],"groups":[["cooling:C07"]]},
+    {"id":"VAL-009","type":"multi_evidence","q":"有效传感器下，正常泵运行的低流量置位阈值与恢复阈值分别是多少？","a":"低于 2.5 L/min 连续 4 s 置位；恢复至 3.0 L/min 或以上连续 7 s 清除。","facts":["置位低于 2.5 L/min 连续 4 s","恢复不低于 3.0 L/min 连续 7 s"],"groups":[["cooling:C01"],["cooling:C02"]]},
+    {"id":"VAL-010","type":"unanswerable","q":"SYN_CoolFlow 传感器的采购料号是什么？","a":null,"facts":[],"groups":[],"reason":"insufficient_evidence","note":"冷却资料不包含供应商或采购料号，不能从信号名推测。"},
+    {"id":"VAL-011","type":"partial_evidence","q":"请同时给出冷却状态发布周期和 CAN 报文标识符。","a":null,"facts":[],"groups":[],"reason":"insufficient_evidence","note":"C06 只提供周期，没有 CAN 报文标识符，按整问拒答处理。"},
+    {"id":"VAL-012","type":"filtered_unanswerable","q":"只检索 DOCX，冷却状态发布周期是多少？","a":null,"facts":[],"groups":[],"filters":{"file_types":["docx"]},"reason":"insufficient_evidence","note":"本验证语料只有 XLSX；合法格式过滤后没有结果。"}
+  ]
+}

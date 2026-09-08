@@ -1,0 +1,56 @@
+{
+  "protocol_id": "engineering-rag-development-draft-1",
+  "spec_path": "../DEV_SPEC.md",
+  "spec_revision": "v1.2",
+  "status": "draft",
+  "frozen": false,
+  "created_at": "2026-09-08",
+  "datasets": [
+    {"path": "dev/synthetic-v2", "split": "dev", "expected_cases": 40, "expected_answerable": 29, "expected_sources": 5, "expected_units": 97},
+    {"path": "validation/synthetic-cooling-v1", "split": "validation", "expected_cases": 12, "expected_answerable": 9, "expected_sources": 1, "expected_units": 8}
+  ],
+  "historical_fixtures": ["dev/synthetic-v1"],
+  "split_policy": {
+    "unit": "source_document_family",
+    "disjoint": ["leakage_group", "document_id", "content_hash", "normalized_question"],
+    "near_duplicate_review": "pending",
+    "validation_use": "development_selection_only",
+    "frozen_test_set": null
+  },
+  "ingestion": {
+    "allowlist": "each corpus_manifest.json sources.path",
+    "exclude": ["cases.jsonl", "annotations.jsonl", "source_units.json", "cases.md", "protocols", "fixtures", "source_definition_seeds"],
+    "separate_snapshot_per_dataset": true,
+    "fixture_to_runtime_id_mapping": "required",
+    "fixture_to_parser_span_mapping": "required_before_model_evaluation"
+  },
+  "retrieval": {"bm25_top_n": 50, "dense_top_n": 50, "rrf_top_m": 50, "rrf_k": 60, "final_top_k": 5},
+  "baselines": ["B0", "B1", "B2", "B3a", "B3b"],
+  "metrics": {
+    "evidence_group_recall": "macro over answerable cases; OR inside group and AND across groups; exact span union coverage",
+    "complete_evidence": "all required groups covered",
+    "mrr": "first ranked prefix fully covering any required group; no hit is zero",
+    "ndcg": {"gain": "2**relevance-1", "default_relevance": "binary", "discount": "log2(rank+1)", "idcg": "shared judged candidate pool", "idcg_zero": 0, "unjudged": "blocks_scoring"},
+    "precision": "relevance>0 in first K divided by K; missing positions count zero",
+    "source_ids": "request-local; resolve through actual Source Map before anchor comparison",
+    "system_errors": "report independently; do not remove from correctness denominator or count as correct refusal",
+    "generation": ["Correctness", "Faithfulness", "CitationCorrectness", "CitationCoverage", "FalseAnswerRate", "FalseRefusalRate"]
+  },
+  "judgments": {
+    "status": "waiting_for_real_candidates",
+    "schema": "schemas/relevance_judgment.schema.json",
+    "file": null,
+    "pool_policy": "union of fixed baseline candidates for each question and chunk configuration; blind annotation",
+    "pool_hash": null,
+    "judgment_hash": null
+  },
+  "runtime_manifest": {
+    "parser_revision": null, "chunk_config_hash": null, "embedding_revision": null,
+    "reranker_revision": null, "llm_revision": null, "verifier_revision": null,
+    "prompt_hash": null, "elasticsearch_image_digest": null, "hardware": null
+  },
+  "performance_targets": {"retrieval_p95_ms": null, "query_p95_ms": null, "concurrency": null},
+  "release_comparison": {"b3b_vs_b3a_ndcg_max_drop": null},
+  "human_review": {"status": "pending", "required": "all release cases; second reviewer >=20% and all disputes/high-risk numerical conclusions"},
+  "release_ready": false
+}

@@ -1,0 +1,12 @@
+{
+  "status": "fixture_defined_generation_not_implemented",
+  "notice": "本文件是可控模型替身输入；S1 是该模拟请求的动态 ID，不是问答集的固定 Gold ID。",
+  "provided_source_map": {"S1": {"content": "SYN_Test 的发送周期为 20 ms。"}},
+  "cases": [
+    {"id":"CITE-001","purpose":"两次都伪造引用 ID","attempts":[{"claims":[{"text":"周期为 20 ms。","source_ids":["S9"]}],"refused":false,"refusal_reason":null},{"claims":[{"text":"周期为 20 ms。","source_ids":["S9"]}],"refused":false,"refusal_reason":null}],"expected":"CitationValidationFailure"},
+    {"id":"CITE-002","purpose":"真实 ID 搭配错误数值且纠正未成功","attempts":[{"claims":[{"text":"周期为 200 ms。","source_ids":["S1"]}],"refused":false,"refusal_reason":null},{"claims":[{"text":"周期为 200 ms。","source_ids":["S1"]}],"refused":false,"refusal_reason":null}],"verifier_stub":["unsupported","unsupported"],"expected":"refused:unsupported_claim"},
+    {"id":"CITE-003","purpose":"纠正成功仍须复验","attempts":[{"claims":[{"text":"周期为 200 ms。","source_ids":["S1"]}],"refused":false,"refusal_reason":null},{"claims":[{"text":"周期为 20 ms。","source_ids":["S1"]}],"refused":false,"refusal_reason":null}],"verifier_stub":["unsupported","supported"],"expected":"success_after_one_repair"},
+    {"id":"CITE-004","purpose":"Verifier 超时不能伪装知识不足","attempts":[{"claims":[{"text":"周期为 20 ms。","source_ids":["S1"]}],"refused":false,"refusal_reason":null}],"verifier_stub":["timeout"],"expected":"system_error_non_2xx"},
+    {"id":"CITE-005","purpose":"检索到但未进入 Prompt 的来源不能引用","retrieved_but_excluded":["chunk-not-in-prompt"],"attempts":[{"claims":[{"text":"周期为 20 ms。","source_ids":["chunk-not-in-prompt"]}],"refused":false,"refusal_reason":null},{"claims":[{"text":"周期为 20 ms。","source_ids":["chunk-not-in-prompt"]}],"refused":false,"refusal_reason":null}],"expected":"CitationValidationFailure"}
+  ]
+}

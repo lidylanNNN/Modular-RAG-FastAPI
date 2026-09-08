@@ -1,0 +1,1409 @@
+[
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-5",
+    "canonical_text": "动力请求报文名称为 SYN_PowerReq，发送周期为 20 ms。报文中的请求有效标志 SYN_ReqValid：0 表示无效，1 表示有效，其他值保留。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 5,
+      "requirement_id": "R01"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-7",
+    "canonical_text": "启动屏蔽期结束后，若距最后一帧有效 SYN_PowerReq 的时间达到 100 ms，则置位通信超时故障 SYN_COMM_TIMEOUT。未达到该阈值不置位；不能用丢帧次数替代时间判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 7,
+      "requirement_id": "R02"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-9",
+    "canonical_text": "自控制器上电起的前 300 ms 为通信超时诊断屏蔽期。屏蔽期间仍接收并更新时间戳，但不置位 SYN_COMM_TIMEOUT；屏蔽结束后按通信超时规则判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 9,
+      "requirement_id": "R03"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-11",
+    "canonical_text": "SYN_COMM_TIMEOUT 置位后，连续收到 5 帧校验通过且 SYN_ReqValid=1 的 SYN_PowerReq，清除当前通信超时状态。中途收到无效帧则连续计数归零。此动作不等于清除已存储的诊断历史；本资料不规定历史清除服务。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 11,
+      "requirement_id": "R04"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-16",
+    "canonical_text": "温度信号 SYN_MotorTemp 达到 90 ℃时进入热降额；只有温度降至 85 ℃或以下并连续保持 10 s，才退出热降额。资料不规定降额曲线或传感器标定参数。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 16,
+      "requirement_id": "R05"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-18",
+    "canonical_text": "只有 SYN_ReqValid=1 且当前没有 SYN_COMM_TIMEOUT 时，才允许采用本帧请求值；否则本周期采用零请求值。资料未给出请求值的物理量程或最大允许扭矩。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 18,
+      "requirement_id": "R06"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-20",
+    "canonical_text": "供电电压 SYN_SupplyVoltage 严格低于 9 V 或严格高于 16 V，并连续保持 100 ms，才置位电压故障。电压回到闭区间 [9 V, 16 V] 时，尚未完成的异常持续计时归零；恰好 9 V 或 16 V 不属于异常。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 20,
+      "requirement_id": "R07"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-22",
+    "canonical_text": "本规范只定义合成控制器的上述接口与判定行为，不指定 MCU 型号、诊断服务编号、标定数据、量产车型或事故统计。历史案例中的验证次数仅为合成案例记录，不能推广为可靠性指标。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 22,
+      "requirement_id": "R08"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-5",
+    "canonical_text": "动力请求报文名称为 SYN_PowerReq，发送周期为 20 ms。报文中的请求有效标志 SYN_ReqValid：0 表示无效，1 表示有效，其他值保留。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 5,
+      "requirement_id": "R01"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-7",
+    "canonical_text": "启动屏蔽期结束后，若距最后一帧有效 SYN_PowerReq 的时间达到 150 ms，则置位通信超时故障 SYN_COMM_TIMEOUT。未达到该阈值不置位；不能用丢帧次数替代时间判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 7,
+      "requirement_id": "R02"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-9",
+    "canonical_text": "自控制器上电起的前 500 ms 为通信超时诊断屏蔽期。屏蔽期间仍接收并更新时间戳，但不置位 SYN_COMM_TIMEOUT；屏蔽结束后按通信超时规则判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 9,
+      "requirement_id": "R03"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-11",
+    "canonical_text": "SYN_COMM_TIMEOUT 置位后，连续收到 5 帧校验通过且 SYN_ReqValid=1 的 SYN_PowerReq，清除当前通信超时状态。中途收到无效帧则连续计数归零。此动作不等于清除已存储的诊断历史；本资料不规定历史清除服务。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 11,
+      "requirement_id": "R04"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-16",
+    "canonical_text": "温度信号 SYN_MotorTemp 达到 90 ℃时进入热降额；只有温度降至 85 ℃或以下并连续保持 10 s，才退出热降额。资料不规定降额曲线或传感器标定参数。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 16,
+      "requirement_id": "R05"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-18",
+    "canonical_text": "只有 SYN_ReqValid=1 且当前没有 SYN_COMM_TIMEOUT 时，才允许采用本帧请求值；否则本周期采用零请求值。资料未给出请求值的物理量程或最大允许扭矩。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 18,
+      "requirement_id": "R06"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-20",
+    "canonical_text": "供电电压 SYN_SupplyVoltage 严格低于 9 V 或严格高于 16 V，并连续保持 100 ms，才置位电压故障。电压回到闭区间 [9 V, 16 V] 时，尚未完成的异常持续计时归零；恰好 9 V 或 16 V 不属于异常。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 20,
+      "requirement_id": "R07"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-22",
+    "canonical_text": "本规范只定义合成控制器的上述接口与判定行为，不指定 MCU 型号、诊断服务编号、标定数据、量产车型或事故统计。历史案例中的验证次数仅为合成案例记录，不能推广为可靠性指标。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 22,
+      "requirement_id": "R08"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-5",
+    "canonical_text": "案例编号: SYN-F001\n现象: 任务调度抖动时出现通信超时误报\n根因: 旧实现按丢帧次数累加，未使用最后有效帧时间戳\n修正措施: 改为时间差判定，阈值从所选规范版本读取\n验证记录: 注入调度抖动，分别检查阈值之前和恰好达到阈值时的行为",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 5,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F001"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-6",
+    "canonical_text": "案例编号: SYN-F002\n现象: 上电阶段错误置位通信超时\n根因: 启动屏蔽期未实现\n修正措施: 屏蔽期间保留接收和时间戳更新，仅抑制故障置位\n验证记录: 覆盖上电初期、屏蔽结束前一刻及结束时刻",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 6,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F002"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-7",
+    "canonical_text": "案例编号: SYN-F003\n现象: 短时电压越界引发故障误报\n根因: 正常电压出现后没有清零异常持续计时，多个短脉冲被累加\n修正措施: 电压回到正常闭区间时将异常持续计时归零\n验证记录: 注入 40 ms 越界、20 ms 正常、70 ms 越界，期望不置位故障",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 7,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F003"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-8",
+    "canonical_text": "案例编号: SYN-F004\n现象: 通信超时恢复条件过早满足\n根因: 无效帧没有清零连续有效帧计数\n修正措施: 无效帧使计数归零，再等待连续 5 帧有效报文\n验证记录: 注入有效、有效、无效、有效序列，期望当前通信超时状态仍保留",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 8,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F004"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-9",
+    "canonical_text": "案例编号: SYN-F005\n现象: 温度在阈值附近时反复退出热降额\n根因: 退出条件遗漏 85 ℃回差和连续 10 s 要求\n修正措施: 按退出温度与保持时间联合判定\n验证记录: 覆盖 86 ℃、85 ℃保持 9 s、85 ℃保持 10 s",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 9,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F005"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-10",
+    "canonical_text": "案例编号: SYN-F006\n现象: 接口变更后旧的有效请求残留\n根因: 无效标志到来时仍沿用上一帧请求值\n修正措施: 有效性检查失败时本周期采用零请求值\n验证记录: 上一帧有效、本帧无效，检查本周期输出为零请求",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 10,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F006"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-5",
+    "canonical_text": "条目编号: P01\n对象: SYN_AuxReq\n条件: CAN-A，运行模式\n规则: 距最后有效帧达到 150 ms 时置位超时。\n备注: 仅适用于本对象、通道与模式。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 5,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P01"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-6",
+    "canonical_text": "条目编号: P02\n对象: SYN_AuxReq\n条件: CAN-B，运行模式\n规则: 距最后有效帧达到 240 ms 时置位超时。\n备注: 仅适用于本对象、通道与模式。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 6,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P02"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-7",
+    "canonical_text": "条目编号: P03\n对象: SYN_AuxReq\n条件: CAN-A，诊断模式\n规则: 距最后有效帧达到 900 ms 时置位超时。\n备注: 仅适用于本对象、通道与模式。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 7,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P03"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-8",
+    "canonical_text": "条目编号: P04\n对象: SYN_AuxReq\n条件: CAN-A，运行模式\n规则: 发送周期为 25 ms。\n备注: 帧周期与超时阈值分别定义。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 8,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P04"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-9",
+    "canonical_text": "条目编号: P05\n对象: SYN_AuxReq\n条件: CAN-A，运行模式\n规则: 恢复条件为连续 6 帧有效。无效帧使恢复计数归零。\n备注: 恢复仅清除当前超时状态。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 9,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P05"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-10",
+    "canonical_text": "条目编号: P06\n对象: SYN_AuxReq\n条件: CAN-A，运行模式\n规则: 通信超时边界为自最后有效报文起 0.150 s，达到边界即置位。\n备注: 与 P01 等价，采用秒表示。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 10,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P06"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-11",
+    "canonical_text": "条目编号: P07\n对象: SYN_AuxWorker\n条件: 运行模式\n规则: 处理任务调度周期为 5 ms。\n备注: 任务周期独立于报文发送周期。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 11,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P07"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-12",
+    "canonical_text": "条目编号: P08\n对象: SYN-AUX-F01\n条件: CAN-A，运行模式\n规则: 历史根因是误套 CAN-B 的 240 ms 超时参数。\n备注: 修正记录：按通道选择规则，分别验证所选阈值前与边界时刻。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 12,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P08"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-13",
+    "canonical_text": "条目编号: P09\n对象: SYN_AuxReq\n条件: CAN-A，运行模式\n规则: 连续校验失败时状态码为 0x32。\n备注: 状态码不是报文标识符。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 13,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "P09"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-14",
+    "canonical_text": "条目编号: X01\n对象: SYN_ResetGuard\n条件: 初始化模式，同一项目配置\n规则: 等待确认的超时阈值为 120 ms。\n备注: 与其他同范围现行规范同等优先级，无覆盖声明。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 14,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "X01"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-15",
+    "canonical_text": "条目编号: D01\n对象: SYN_AuxReq_01\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 165 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 15,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D01"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-16",
+    "canonical_text": "条目编号: D02\n对象: SYN_AuxReq_02\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 170 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 16,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D02"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-17",
+    "canonical_text": "条目编号: D03\n对象: SYN_AuxReq_03\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 175 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 17,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D03"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-18",
+    "canonical_text": "条目编号: D04\n对象: SYN_AuxReq_04\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 180 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 18,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D04"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-19",
+    "canonical_text": "条目编号: D05\n对象: SYN_AuxReq_05\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 185 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 19,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D05"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-20",
+    "canonical_text": "条目编号: D06\n对象: SYN_AuxReq_06\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 190 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 20,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D06"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-21",
+    "canonical_text": "条目编号: D07\n对象: SYN_AuxReq_07\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 195 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 21,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D07"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-22",
+    "canonical_text": "条目编号: D08\n对象: SYN_AuxReq_08\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 200 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 22,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D08"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-23",
+    "canonical_text": "条目编号: D09\n对象: SYN_AuxReq_09\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 205 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 23,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D09"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-24",
+    "canonical_text": "条目编号: D10\n对象: SYN_AuxReq_10\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 210 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 24,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D10"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-25",
+    "canonical_text": "条目编号: D11\n对象: SYN_AuxReq_11\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 215 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 25,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D11"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-26",
+    "canonical_text": "条目编号: D12\n对象: SYN_AuxReq_12\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 220 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 26,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D12"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-27",
+    "canonical_text": "条目编号: D13\n对象: SYN_AuxReq_13\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 225 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 27,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D13"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-28",
+    "canonical_text": "条目编号: D14\n对象: SYN_AuxReq_14\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 230 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 28,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D14"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-29",
+    "canonical_text": "条目编号: D15\n对象: SYN_AuxReq_15\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 235 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 29,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D15"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-30",
+    "canonical_text": "条目编号: D16\n对象: SYN_AuxReq_16\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 240 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 30,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D16"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-31",
+    "canonical_text": "条目编号: D17\n对象: SYN_AuxReq_17\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 245 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 31,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D17"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-32",
+    "canonical_text": "条目编号: D18\n对象: SYN_AuxReq_18\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 250 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 32,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D18"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-33",
+    "canonical_text": "条目编号: D19\n对象: SYN_AuxReq_19\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 255 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 33,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D19"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-34",
+    "canonical_text": "条目编号: D20\n对象: SYN_AuxReq_20\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 260 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 34,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D20"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-35",
+    "canonical_text": "条目编号: D21\n对象: SYN_AuxReq_21\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 265 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 35,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D21"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-36",
+    "canonical_text": "条目编号: D22\n对象: SYN_AuxReq_22\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 270 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 36,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D22"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-37",
+    "canonical_text": "条目编号: D23\n对象: SYN_AuxReq_23\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 275 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 37,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D23"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-38",
+    "canonical_text": "条目编号: D24\n对象: SYN_AuxReq_24\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 280 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 38,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D24"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-39",
+    "canonical_text": "条目编号: D25\n对象: SYN_AuxReq_25\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 285 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 39,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D25"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-40",
+    "canonical_text": "条目编号: D26\n对象: SYN_AuxReq_26\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 290 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 40,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D26"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-41",
+    "canonical_text": "条目编号: D27\n对象: SYN_AuxReq_27\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 295 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 41,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D27"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-42",
+    "canonical_text": "条目编号: D28\n对象: SYN_AuxReq_28\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 300 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 42,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D28"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-43",
+    "canonical_text": "条目编号: D29\n对象: SYN_AuxReq_29\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 305 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 43,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D29"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-44",
+    "canonical_text": "条目编号: D30\n对象: SYN_AuxReq_30\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 310 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 44,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D30"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-45",
+    "canonical_text": "条目编号: D31\n对象: SYN_AuxReq_31\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 315 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 45,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D31"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-46",
+    "canonical_text": "条目编号: D32\n对象: SYN_AuxReq_32\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 320 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 46,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D32"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-47",
+    "canonical_text": "条目编号: D33\n对象: SYN_AuxReq_33\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 325 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 47,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D33"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-48",
+    "canonical_text": "条目编号: D34\n对象: SYN_AuxReq_34\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 330 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 48,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D34"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-49",
+    "canonical_text": "条目编号: D35\n对象: SYN_AuxReq_35\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 335 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 49,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D35"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-50",
+    "canonical_text": "条目编号: D36\n对象: SYN_AuxReq_36\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 340 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 50,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D36"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-51",
+    "canonical_text": "条目编号: D37\n对象: SYN_AuxReq_37\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 345 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 51,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D37"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-52",
+    "canonical_text": "条目编号: D38\n对象: SYN_AuxReq_38\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 350 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 52,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D38"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-53",
+    "canonical_text": "条目编号: D39\n对象: SYN_AuxReq_39\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 355 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 53,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D39"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-54",
+    "canonical_text": "条目编号: D40\n对象: SYN_AuxReq_40\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 360 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 54,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D40"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-55",
+    "canonical_text": "条目编号: D41\n对象: SYN_AuxReq_41\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 365 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 55,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D41"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-56",
+    "canonical_text": "条目编号: D42\n对象: SYN_AuxReq_42\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 370 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 56,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D42"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-57",
+    "canonical_text": "条目编号: D43\n对象: SYN_AuxReq_43\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 375 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 57,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D43"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-58",
+    "canonical_text": "条目编号: D44\n对象: SYN_AuxReq_44\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 380 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 58,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D44"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-59",
+    "canonical_text": "条目编号: D45\n对象: SYN_AuxReq_45\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 385 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 59,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D45"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-60",
+    "canonical_text": "条目编号: D46\n对象: SYN_AuxReq_46\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 390 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 60,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D46"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-61",
+    "canonical_text": "条目编号: D47\n对象: SYN_AuxReq_47\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 395 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 61,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D47"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-62",
+    "canonical_text": "条目编号: D48\n对象: SYN_AuxReq_48\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 400 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 62,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D48"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-63",
+    "canonical_text": "条目编号: D49\n对象: SYN_AuxReq_49\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 405 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 63,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D49"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-64",
+    "canonical_text": "条目编号: D50\n对象: SYN_AuxReq_50\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 410 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 64,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D50"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-65",
+    "canonical_text": "条目编号: D51\n对象: SYN_AuxReq_51\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 415 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 65,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D51"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-66",
+    "canonical_text": "条目编号: D52\n对象: SYN_AuxReq_52\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 420 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 66,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D52"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-67",
+    "canonical_text": "条目编号: D53\n对象: SYN_AuxReq_53\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 425 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 67,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D53"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-68",
+    "canonical_text": "条目编号: D54\n对象: SYN_AuxReq_54\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 430 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 68,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D54"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-69",
+    "canonical_text": "条目编号: D55\n对象: SYN_AuxReq_55\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 435 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 69,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D55"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-70",
+    "canonical_text": "条目编号: D56\n对象: SYN_AuxReq_56\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 440 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 70,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D56"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-71",
+    "canonical_text": "条目编号: D57\n对象: SYN_AuxReq_57\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 445 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 71,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D57"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-72",
+    "canonical_text": "条目编号: D58\n对象: SYN_AuxReq_58\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 450 ms 时置位超时；发送周期为 20 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 72,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D58"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-73",
+    "canonical_text": "条目编号: D59\n对象: SYN_AuxReq_59\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 455 ms 时置位超时；发送周期为 25 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 73,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D59"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-74",
+    "canonical_text": "条目编号: D60\n对象: SYN_AuxReq_60\n条件: CAN-B，诊断模式\n规则: 本对象距最后有效帧达到 460 ms 时置位超时；发送周期为 30 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 74,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D60"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-75",
+    "canonical_text": "条目编号: D61\n对象: SYN_AuxReq_61\n条件: CAN-A，运行模式\n规则: 本对象距最后有效帧达到 465 ms 时置位超时；发送周期为 35 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 75,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D61"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-76",
+    "canonical_text": "条目编号: D62\n对象: SYN_AuxReq_62\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 470 ms 时置位超时；发送周期为 40 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 76,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D62"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-77",
+    "canonical_text": "条目编号: D63\n对象: SYN_AuxReq_63\n条件: CAN-A，诊断模式\n规则: 本对象距最后有效帧达到 475 ms 时置位超时；发送周期为 10 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 77,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D63"
+    }
+  },
+  {
+    "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+    "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+    "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+    "unit_id": "record-row-78",
+    "canonical_text": "条目编号: D64\n对象: SYN_AuxReq_64\n条件: CAN-B，运行模式\n规则: 本对象距最后有效帧达到 480 ms 时置位超时；发送周期为 15 ms。\n备注: 规则仅适用于完整对象名，不适用于 SYN_AuxReq 或其他编号对象。",
+    "locator": {
+      "sheet": "接口规范",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 78,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "D64"
+    }
+  },
+  {
+    "document_id": "76dea989-c9b5-50b0-9d29-2262f468e28f",
+    "revision_id": "ce66bba774b35197c7e941d08387ced7191d681a57b0b94be2ca08c309ef7238",
+    "parse_artifact_id": "205b32e4164dfca7d5bc12727e1c7455bbddbbeda4620d5d02c314b6e3fbbe56",
+    "unit_id": "record-row-5",
+    "canonical_text": "条目编号: X02\n对象: SYN_ResetGuard\n条件: 初始化模式，同一项目配置\n规则: 等待确认的超时阈值为 180 ms。\n备注: 与其他同范围现行规范同等优先级，无覆盖声明。",
+    "locator": {
+      "sheet": "复位接口",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 5,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "X02"
+    }
+  }
+]

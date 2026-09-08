@@ -1,0 +1,122 @@
+[
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-5",
+    "canonical_text": "条目编号: C01\n对象: SYN_CoolFlow\n条件: 泵运行且传感器有效\n规则: 流量严格低于 2.5 L/min 并连续 4 s，置位低流量故障。\n备注: 恰好 2.5 L/min 时不启动低流量计时。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 5,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C01"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-6",
+    "canonical_text": "条目编号: C02\n对象: SYN_CoolFlow\n条件: 泵运行且传感器有效\n规则: 流量恢复到 3.0 L/min 或以上并连续 7 s，清除当前低流量故障。\n备注: 中途低于 3.0 L/min 时恢复计时归零。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 6,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C02"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-7",
+    "canonical_text": "条目编号: C03\n对象: SYN_CoolTemp\n条件: 温度传感器有效\n规则: 温度达到 65 ℃进入高温状态；降到 60 ℃或以下连续 8 s 才退出。\n备注: 进入和退出采用不同阈值。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 7,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C03"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-8",
+    "canonical_text": "条目编号: C04\n对象: SYN_CoolSensor\n条件: 传感器标志为无效\n规则: 禁止使用读数计算流量故障；输出传感器不可用状态。\n备注: 传感器不可用不能记为正常流量。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 8,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C04"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-9",
+    "canonical_text": "条目编号: C05\n对象: SYN-COOL-F01\n条件: 泵停止后的故障误报\n规则: 根因是没有判断泵运行条件。\n备注: 修正后泵停止时不启动低流量故障计时。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 9,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C05"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-10",
+    "canonical_text": "条目编号: C06\n对象: SYN_CoolStatus\n条件: 监控任务\n规则: 状态发布周期为 80 ms。\n备注: 发布周期不代表故障持续时间。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 10,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C06"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-11",
+    "canonical_text": "条目编号: C07\n对象: SYN_CoolFlow\n条件: 仅保养模式\n规则: 低流量记录阈值为 1.5 L/min，并连续 12 s。\n备注: 保养记录规则不适用于正常泵运行诊断。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 11,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C07"
+    }
+  },
+  {
+    "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+    "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+    "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+    "unit_id": "record-row-12",
+    "canonical_text": "条目编号: C08\n对象: SYN_CoolPressure\n条件: 压力监控\n规则: 压力采样周期为 40 ms。\n备注: 压力采样与流量诊断是不同对象。",
+    "locator": {
+      "sheet": "冷却规则",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 12,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "C08"
+    }
+  }
+]

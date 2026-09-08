@@ -1,12 +1,25 @@
-# Engineering RAG — DEV_SPEC v1
+# Engineering RAG — DEV_SPEC
 
-规格修订：v1.1（V1 范围不变；补齐证据、版本、评测和运行契约）。
+当前规格版本：**v1.2**；产品范围：**V1**；最后更新：**2026-09-08**。
+
+## 版本变更目录
+
+| 规格版本 | 日期 | 主要变更 | 对应章节 |
+|---|---|---|---|
+| v1.2（当前） | 2026-09-08 | 统一单索引、N/M/K 检索预算、Source ID 引用、分层评测与 B3a/B3b 对照；前移快照及容器基础；审核补齐基线结果契约、排序评分口径和阶段能力限制；正式文件改为 DEV_SPEC.md | 3.5–3.8、4.2–4.6、4.9、5.3、6.3–6.7、7 |
+| v1.1 | 2026-09-07；跨平台补充于 2026-09-08 | 补充 SourceSpan、Claims 验证、快照发布、原文锚点评测、资源预算、进度表和跨平台要求；加入合成开发集状态 | 3–8；[历史规格](docs/history/engineering-rag_DEV_SPEC_v1.md) |
+| v1（初稿） | 未记录 | 建立四格式解析、统一 Chunk、混合检索、生成和评测的 V1 范围 | 1–9；初稿演变见 Git 历史 |
+
+维护约定：正式规格始终使用 `DEV_SPEC.md`，文件名不携带版本号。修订时更新当前版本、日期及本表；详细差异由 Git 保存。历史文件仅供追溯，不作为开发依据。规格修订完成不代表功能验收完成。
 
 > **Single Source of Truth**：本文件是 `engineering-rag` 项目的唯一开发规格。模块设计、数据契约、验证规则、验收标准均以本文件为准。
 >
 > **项目定位**：面向汽车研发文档与历史失效知识的、Evaluation-driven、Evidence-bound 的 Engineering Knowledge Service。
 >
 > **当前状态**：设计/实现规格。本文中的功能、接口和指标均为开发目标；量化指标只能在冻结测试集完成实测后写入简历或面试材料。
+
+>
+> **v1.2 修订摘要**：删除独立 `Evidence` 事实实体；统一 Elasticsearch 单索引文档；明确 `Retriever Top-N → RRF Top-M → Reranker Top-K`；将 RRF 定位为候选融合与预算控制；Citation 改为请求内 `Source ID` 映射；Evaluation 按 Retrieval / Reranking / Generation 分层；补充 `Union + Reranker` 与 `RRF + Reranker` 对照；同时前移最小 Snapshot、版本生命周期和 Linux 容器骨架，并将 `search_knowledge` 实现纳入 Reranker 闭环。
 
 ---
 
@@ -32,7 +45,7 @@
 3. 根据文件类型使用对应的 Chunking Strategy；
 4. Chunking 后统一为一个强类型 `Chunk` Contract；
 5. 同时建立 BM25 全文索引与 BGE-M3 Dense 向量索引；
-6. 在线检索采用 BM25 + Dense 并行召回、RRF 融合、BGE-Reranker 精排；
+6. 在线检索采用 BM25 + Dense 并行 Top-N 召回、RRF 融合并截断 Top-M、BGE-Reranker 精排得到最终 Top-K；
 7. LLM 回答必须绑定检索证据并返回 Citation；
 8. 证据不足时拒答；
 9. 建立冻结测试集、Ground Truth、Baseline、Ablation、Bad Case 与 Trace；
@@ -61,7 +74,7 @@ V1 不做：
 
 - 四种文件均能完成 `Parse → Chunk → Index`；
 - 同一 Query 可同时经过 BM25、Dense、RRF、Reranker；
-- Answer 可追溯到具体 Chunk 和原始文档位置；
+- Answer 的 Source ID 可映射回具体 Chunk 和原始文档位置；
 - Unanswerable Query 能拒答；
 - 检索与生成均有冻结测试集；
 - Baseline / Ablation 可复现；
@@ -107,8 +120,13 @@ Format-specific Parsed Structure
 Format-specific Chunker
    ↓
 Unified Chunk[]
-   ├──→ BM25 Index
-   └──→ BGE-M3 Embedding → Dense Index
+   ↓
+BGE-M3 Embedding
+   ↓
+Single Elasticsearch Snapshot Index
+   └── one ES document per Chunk
+       ├── content      → BM25 inverted index
+       └── dense_vector → Dense vector index
 ```
 
 ### 2.2.2 Online
@@ -116,24 +134,28 @@ Unified Chunk[]
 ```text
 User Query
    ↓
-┌───────────────┐
-│               │
-BM25          Dense
-│               │
-└────── RRF ────┘
-        ↓
-   BGE-Reranker
-        ↓
-    Top Context
-        ↓
-Evidence-bound Prompt
-        ↓
-       LLM
-        ↓
-Structured Answer + Evidence IDs
-        ↓
-Citation Validation / Source Mapping
-        ↓
+┌─────────────────────┐
+│                     │
+BM25 Top-N        Dense Top-N
+│                     │
+└──────── RRF ─────────┘
+          ↓
+   Candidate Top-M
+          ↓
+    BGE-Reranker
+          ↓
+      Final Top-K
+          ↓
+ Request-local Source Binding
+          ↓
+  Evidence-bound Prompt
+          ↓
+         LLM
+          ↓
+Structured Answer + Source IDs
+          ↓
+Citation Validation / Backend Source Mapping
+          ↓
 Frontend / API Consumer
 ```
 
@@ -149,7 +171,7 @@ Frontend / API Consumer
    Code Review           Engineering Agent
 ```
 
-`search_knowledge` 返回结构化 Evidence，不返回自由文本聊天结果作为唯一输出。
+`search_knowledge` 返回结构化最终检索结果（`FinalCandidate[]`），不返回自由文本聊天结果作为唯一输出。
 
 ## 2.3 Module Boundaries
 
@@ -179,7 +201,8 @@ Generation
 ├── Context Builder
 ├── Prompt Builder
 ├── LLM Client
-├── Evidence Validator
+├── Source Binder
+├── Citation Validator
 ├── Claim Verifier
 └── Refusal Policy
 
@@ -201,7 +224,7 @@ Runtime
 - Chunker 不能依赖 Elasticsearch；
 - Retriever 只消费 `Chunk` / Index，不感知 DOCX/PDF/PPTX/XLSX 原始格式；
 - Reranker 不修改原始 Chunk；
-- Generation 只能引用 Retriever 提供的 Evidence；
+- Generation 只能引用本次请求由 FinalCandidate 绑定得到的 Source ID；
 - Evaluation 必须通过公开接口调用系统，不允许复制一套隐藏逻辑；
 - Tool 层只编排现有 Retrieval 能力，不复制 Retrieval 实现。
 
@@ -577,7 +600,29 @@ V1 对历史失效案例等结构化业务表参考 RAGFlow Table 模式：**Row
 
 # 3.5 Retrieval Contracts
 
-## 3.5.1 Retrieval Candidate
+## 3.5.1 Retrieval Configuration
+
+检索链路显式区分三层候选预算：
+
+```python
+class RetrievalConfig(BaseModel):
+    bm25_top_n: int = Field(default=50, ge=1)
+    dense_top_n: int = Field(default=50, ge=1)
+    rrf_top_m: int = Field(default=50, ge=1)
+    final_top_k: int = Field(default=5, ge=1, le=20)
+    rrf_k: int = Field(default=60, ge=1)
+```
+
+约束：
+
+- `Top-N`：BM25 / Dense 各自召回窗口；
+- `Top-M`：RRF 对两路候选融合、去重后保留给 Cross-Encoder 的候选窗口；
+- `Top-K`：Reranker 精排后最终返回给 Tool / Generation 的结果；
+- 必须满足 `final_top_k <= rrf_top_m`；
+- 请求级 `top_k` 可以覆盖 `final_top_k`，覆盖后仍须满足 `top_k <= rrf_top_m` 和系统范围；违反时返回请求 Schema 错误（422），不静默扩大 M；
+- `N/M/K`、`rrf_k` 与实际候选数量必须进入 Trace 和实验 manifest。
+
+## 3.5.2 Retrieval Candidate
 
 Retriever 输出统一候选结构：
 
@@ -585,19 +630,20 @@ Retriever 输出统一候选结构：
 class RetrievalCandidate(BaseModel):
     chunk: Chunk
     source: Literal["bm25", "dense"]
-    rank: int
+    rank: int = Field(ge=1)
     score: float | None = None
 ```
 
 注意：BM25 score 与 Dense score 不直接比较。
 
-## 3.5.2 RRF Result
+## 3.5.3 RRF Result
 
 ```python
 class FusedCandidate(BaseModel):
     chunk: Chunk
     rrf_score: float
     source_ranks: dict[str, int]
+    rank: int = Field(ge=1)
 ```
 
 默认公式：
@@ -606,47 +652,75 @@ class FusedCandidate(BaseModel):
 RRF(d) = Σ 1 / (k + rank_i(d))
 ```
 
-`k=60` 仅为默认基线参数，最终通过 Validation Set 验证。
+规则：
 
-## 3.5.3 Rerank Result
+- 默认 `k=60`，rank 从 1 开始；
+- RRF 的职责是 **candidate fusion + candidate pruning / budget control**，不是最终相关性排序器；
+- 按 `chunk_id` 合并 BM25 Top-N 与 Dense Top-N，保留各路原始 rank；每路对同一 Chunk 最多贡献一次，不能在去重时丢失任一路排名；
+- RRF 只保留 Top-M 进入 Reranker；
+- `k=60` 是成熟实现常用基线，最终配置必须记录验证集实验；不得把 60 描述为理论最优。
+
+## 3.5.4 Final Candidate
 
 ```python
-class RerankedCandidate(BaseModel):
+class FinalCandidate(BaseModel):
     chunk: Chunk
-    rerank_score: float
-    rank: int
+    rank: int = Field(ge=1)
+    rrf_score: float | None = None
+    source_ranks: dict[str, int]
+    rerank_score: float | None = None
 ```
 
-Reranker 仅处理融合后的有限候选集，不允许全库 rerank。
+规则：
+
+- 正常链路由 BGE-Reranker 对 RRF Top-M 重排并截断为 Top-K；
+- `rerank_score` 只在 Reranker 成功时存在；
+- Reranker 降级时允许保留 RRF 顺序，`rerank_score=None` 且响应必须标记 `degraded=true`；
+- RRF 只决定 Reranker 可见的候选集合和候选优先级，不直接约束 Reranker 对 Top-M 内部的最终顺序；
+- 不允许全库 rerank。
+- B0/B1/B2/B3a 等评测路径复用同一结果投影；未执行 RRF 时 `rrf_score=None`，未执行 Reranker 时 `rerank_score=None`，不填伪造分数。`source_ranks` 保留各原始召回列表的排名。主动关闭模块的实验不标记 degraded；运行时失败才按降级规则处理。
 
 ---
 
-# 3.6 Evidence / Generation Contracts
+# 3.6 Citation / Generation Contracts
 
-## 3.6.1 Evidence
+V1 不建立独立 `Evidence` 事实实体。**检索得到的 `FinalCandidate.chunk` 是证据事实源**；Generation 仅在本次请求内为实际送入 Prompt 的 FinalCandidate 分配 Source ID。
 
-```python
-class Evidence(BaseModel):
-    evidence_id: str
-    chunk_id: str
-    document_id: str
-    revision_id: str
-    parse_artifact_id: str
-    content: str
-    source_spans: list[SourceSpan] = Field(min_length=1)
-    metadata: dict[str, Any]
+## 3.6.1 Request-local Source Binding
+
+请求内建立临时映射：
+
+```text
+S1 → FinalCandidate(chunk_A)
+S2 → FinalCandidate(chunk_B)
+S3 → FinalCandidate(chunk_C)
 ```
 
-`evidence_id` 由系统生成，不由 LLM 自由创造。
+约束：
 
-ID 在请求内唯一，并绑定本次 `snapshot_id` 中的具体 Chunk。Evidence.content 是实际送入 Prompt 的完整证据文本；V1 Context Builder 只选取完整 Chunk，不做隐式摘录或截断。未送入 Prompt 的候选保存在 Trace，不得被答案引用。
+- `source_id` 仅在本次请求中唯一，不持久化为新的知识实体；
+- Source ID 由后端生成，LLM 无权创建有效的新 ID；
+- Prompt 中的 Source 文本直接来自对应 `FinalCandidate.chunk.content`；
+- Citation 的文件名、版本、页码/Slide/Sheet、`source_spans` 等均由后端从 Chunk 回填，不能相信 LLM 自报来源；
+- 未送入 Prompt 的候选只保存在 Trace，不得被答案引用；
+- V1 Context Builder 只选择完整 Chunk，不做隐式摘录或静默截断。
+
+API 输出使用响应投影视图，不建立第二份事实源：
+
+```python
+class CitationReference(BaseModel):
+    source_id: str
+    chunk: Chunk
+```
+
+`CitationReference` 仅用于将请求内 Source ID 与真实 Chunk 一起返回给调用方；事实源仍是 `Chunk`。
 
 ## 3.6.2 LLM Structured Output
 
 ```python
 class CitedClaim(BaseModel):
     text: str = Field(min_length=1)
-    evidence_ids: list[str] = Field(min_length=1)
+    source_ids: list[str] = Field(min_length=1)
 
 class AnswerOutput(BaseModel):
     claims: list[CitedClaim]
@@ -658,19 +732,20 @@ class AnswerOutput(BaseModel):
 
 规则：
 
-- LLM 只能引用 Prompt 中给出的 `evidence_id`；
-- 后处理必须校验 `evidence_id` 是否存在；
-- 不存在的 Citation 直接判定输出无效；
-- Evidence 不足必须支持拒答；
+- LLM 只能引用 Prompt 中实际提供的 `source_id`；
+- 后处理必须用本次请求 Source Map 校验每个 `source_id`；
+- 不存在的 Source ID 直接判定输出无效；
+- 后端根据 `source_id → FinalCandidate → Chunk → source_spans/metadata` 生成真实 Citation；
+- 证据不足必须支持拒答；
 - Answer 不允许把模型自身知识伪装成工程文档事实。
 
 输出与拒答规则：
 
-- 非拒答时 claims 非空、refusal_reason 为 null；每条 claim 表达一项可验证结论并引用本请求 Evidence。程序按顺序把 claims.text 渲染为 answer，不再接收无引用的第二份自由答案。
+- 非拒答时 claims 非空、refusal_reason 为 null；每条 claim 表达一项可验证结论并引用本请求 Source ID。程序按顺序把 claims.text 渲染为 answer，不再接收无引用的第二份自由答案。
 - 拒答时 claims 必须为空、refusal_reason 必须有值；answer 由程序生成固定解释。空检索结果直接拒答，不调用生成模型。
-- 校验分两层：程序检查 Schema、ID、来源和跨字段约束；独立语义验证调用检查每条 claim 是否由引用证据支持，重点覆盖数值、单位、条件、否定和版本。验证结果仅为质量控制信号，不保证绝对正确，需通过 4.6 的人工标注评测验证。
+- 校验分两层：程序检查 Schema、Source ID allowlist、来源和跨字段约束；独立语义验证调用检查每条 claim 是否由引用 Chunk 支持，重点覆盖数值、单位、条件、否定和版本。验证结果仅为质量控制信号，不保证绝对正确，需通过 4.6 的人工标注评测验证。
 - 语义验证返回每条 claim 的 `supported/unsupported/uncertain` 及理由；任一非 supported 时不得按成功答案返回。输入资料中的指令视为数据，不能改变系统规则或触发工具执行。
-- Schema/虚构 ID/语义不支持最多触发一次纠正生成，使用同一 Evidence，仍须完整复验。仍为非法结构或 ID 时返回 `EvidenceValidationFailure`；结构有效但语义仍不支持时拒答 `unsupported_claim`。验证服务异常/超时返回系统错误，不伪装成证据不足。
+- Schema/虚构 Source ID/语义不支持最多触发一次纠正生成，使用同一组 Source，仍须完整复验。仍为非法结构或 ID 时返回 `CitationValidationFailure`；结构有效但语义仍不支持时拒答 `unsupported_claim`。验证服务异常/超时返回系统错误，不伪装成证据不足。
 - V1 采用整问拒答，不输出未经支持的部分结论；在评测中计入可回答问题误拒答率。
 - 不把 rerank_score 当概率或统一拒答阈值；若以后加入分数阈值，必须在验证集校准并记录配置。版本选择按 5.3 执行。
 
@@ -695,7 +770,7 @@ class SearchKnowledgeRequest(BaseModel):
 
 class SearchKnowledgeResponse(BaseModel):
     query: str
-    evidences: list[Evidence]
+    results: list[FinalCandidate]
     trace_id: str
     snapshot_id: str
     degraded: bool = False
@@ -711,12 +786,12 @@ search_knowledge
 
 - Code Review 查询需求、设计、编码规范；
 - Engineering Agent 查询工程知识；
-- 用户问答调用同一 Retrieval Core。
+- 用户问答复用同一 Retrieval Core。
 
-Tool 不直接绑定前端。
+Tool 不直接绑定前端，也不经过 LLM Generation；它返回最终 Top-K 结构化检索结果。Generation 需要 Citation 时，再对这些 FinalCandidate 建立 request-local Source Binding。
 
 所有外部请求模型禁止额外字段，并做严格类型校验；query 去除首尾空白后仍须非空。过滤字段之间 AND，列表内 OR；空列表和超过 100 项的列表无效，null 表示不限制。sheet 使用精确匹配，无该字段的文档不命中；revision_ids 与 version_mode 的约束见 5.3。
-不接受任意 Elasticsearch DSL。两路在召回前执行同一过滤语义，禁止先 top_n 再过滤导致候选不足。Tool 返回检索证据，不宣称证据足以回答；空结果返回空列表，检索异常返回错误。
+不接受任意 Elasticsearch DSL。两路在召回前执行同一过滤语义，禁止先 top_n 再过滤导致候选不足。Tool 返回检索结果，不宣称结果足以回答；空结果返回空列表，检索异常返回错误。
 
 ---
 
@@ -742,13 +817,13 @@ class QueryRequest(SearchKnowledgeRequest):
 
 class QueryResponse(AnswerOutput):
     answer: str
-    evidences: list[Evidence]
+    references: list[CitationReference]
     trace_id: str
     snapshot_id: str
     degraded: bool = False
 ```
 
-QueryResponse.evidences 返回本次实际送入 Prompt 的证据；claims.evidence_ids 明确标出实际引用。未引用证据不能展示为支持答案的引用。拒答可带本次检索证据供诊断，但 claims 为空。
+QueryResponse.references 返回本次实际送入 Prompt 的 Source Binding；claims.source_ids 明确标出实际引用。未被 claim 引用的 Reference 不能展示为“支持该 claim 的引用”。拒答可带本次检索到的 Reference 供诊断，但 claims 为空。
 
 入库采用异步任务，单请求单文件：multipart `file`，可选 `document_id`、`version`，必需 `Idempotency-Key` 请求头。不接受客户端任意本机路径或远程 URL。V1 默认文件上限 50 MiB，解包后上限 500 MiB，超限拒绝，数值属于运行初始配置。
 
@@ -785,7 +860,7 @@ IndexFailure
 RetrievalFailure
 RerankFailure
 GenerationFailure
-EvidenceValidationFailure
+CitationValidationFailure
 InvalidFilter
 ContextBudgetExceeded
 InputTooLong
@@ -821,7 +896,7 @@ class ErrorResponse(BaseModel):
 | VersionConflict / 幂等键负载冲突 | 接收前发现为 409；已接受任务内发现版本冲突则 job failed |
 | ParseFailure / ChunkFailure / IndexFailure | 已接收的异步 job 标记 failed，查询 job 本身仍为 200 |
 | RetrievalFailure / 模型依赖不可用 | 503 |
-| GenerationFailure / EvidenceValidationFailure | 上游响应不可用为 502；自身程序缺陷为 500 |
+| GenerationFailure / CitationValidationFailure | 上游响应不可用为 502；自身程序缺陷为 500 |
 | DeadlineExceeded / QueueFull | 504 / 503 |
 
 错误 message 不暴露密钥或堆栈。非 2xx 也必须产生 trace_id。BM25 或 Dense 任一路失败时 V1 整次检索失败，不用单路冒充 Hybrid；Reranker 允许按 4.4 降级并设置 degraded=true，降级结果仍执行同一证据验证。
@@ -894,16 +969,21 @@ list[Chunk]
 ## Outputs
 
 ```text
-BM25 Index Entries
-Dense Vector Index Entries
+Elasticsearch Snapshot Index
+└── one ES document per Chunk
+    ├── content      → BM25 inverted index
+    ├── dense_vector → Dense vector index
+    └── metadata / source fields
 ```
 
 ## Design
 
-- Elasticsearch 负责 BM25；
-- Dense 使用 BGE-M3 生成向量；
-- V1 Dense 也存入 Elasticsearch；同一快照索引文档保存 Chunk、文本和 dense_vector，减少两套存储的发布协调。具体版本和向量查询兼容性在 M1 验证并锁定，不默认认为任意 Elasticsearch 版本均适用。
-- Dense 索引与 Chunk 通过 `chunk_id` 关联；
+- V1 使用**同一个 Elasticsearch 物理索引**承载全文与向量检索，不维护两套独立事实存储；
+- 每个 Chunk 对应一条 ES Document，至少保存 `chunk_id / document_id / revision_id / parse_artifact_id / content / dense_vector / chunk_index / source_spans / metadata`；
+- `content` 建立全文倒排索引用于 BM25；同一 `content` 通过 BGE-M3 生成 `dense_vector` 并建立向量索引用于 Dense Retrieval；
+- Embedding 是索引派生产物，只存在于 ES Index Document，不写回核心 `Chunk` Contract；
+- BM25 与 Dense 通过同一 `chunk_id` 和同一 snapshot 保证候选来源一致；
+- 具体 Elasticsearch 版本、向量维度、距离函数与过滤查询兼容性在 M1 验证并锁定，不默认认为任意版本均适用；
 - metadata 必须支持过滤；
 - 索引必须保存 document/version/hash 信息。
 
@@ -921,18 +1001,20 @@ Dense Vector Index Entries
 
 ## Responsibility
 
-高召回地获取相关证据。
+高召回地获取相关证据，并在进入 Cross-Encoder 前完成低成本候选融合和预算控制。
 
 ## Flow
 
 ```text
 Query
-├── BM25 Retrieve(top_n)
-└── Dense Retrieve(top_n)
+├── BM25 Retrieve(Top-N)
+└── Dense Retrieve(Top-N)
         ↓
-      RRF
+    Union + Dedup
         ↓
-Candidate Set
+       RRF
+        ↓
+   Candidate Top-M
 ```
 
 ## Design Decisions
@@ -940,7 +1022,9 @@ Candidate Set
 - V1 所有普通 Query 默认 Hybrid；
 - 不做 query_type switch-case；
 - BM25 与 Dense 原始 score 不直接相加；
-- RRF 是融合 baseline。
+- RRF 不承担最终排序职责，而承担 `candidate fusion + candidate pruning / budget control`；
+- RRF Top-M 才进入 Reranker，避免把两路完整候选并集全部交给 Cross-Encoder；
+- 默认 `rrf_k=60`，但参数与 N/M/K 必须进入验证集实验和 Trace。
 
 ## Verification
 
@@ -948,7 +1032,9 @@ Candidate Set
 - 单独 Dense 可运行；
 - Hybrid 可运行；
 - source rank 可追踪；
-- duplicate chunk 可正确去重。
+- duplicate chunk 可正确去重；
+- RRF Top-M 截断稳定、确定；
+- 相同候选输入和配置得到稳定融合顺序。
 
 ---
 
@@ -956,7 +1042,7 @@ Candidate Set
 
 ## Responsibility
 
-对 Hybrid 候选集进行高精度排序。
+对 RRF Top-M 候选集进行高精度排序，并输出最终 Top-K。
 
 ## Model
 
@@ -966,39 +1052,43 @@ BGE-Reranker
 
 ## Rules
 
-- 输入：Query + Candidate Chunk；
-- 输出：rerank_score + final rank；
+- 输入：Query + RRF Top-M Candidate Chunk；
+- 输出：`FinalCandidate[]`，正常情况下包含 rerank_score + final rank；
+- RRF 原排名决定候选是否进入 Top-M，但进入 Reranker 后不直接约束其内部最终顺序；
 - 不允许全库 rerank；
-- Reranker 失败时可以降级到 RRF 排序，但必须记录 trace。
+- Reranker 失败时可以降级到 RRF 排序，但必须记录 Trace 且 `degraded=true`；
+- 评测必须单独比较 RRF 前后与 Reranker 前后排序质量，不能用同一个指标混淆召回与精排职责。
 
 ---
 
-# 4.5 Generation & Evidence
+# 4.5 Generation & Citation
 
 ## Responsibility
 
-仅基于检索 Evidence 生成回答并绑定 Citation。
+仅基于 Final Top-K Chunk 生成回答，并通过请求内 Source ID 绑定 Citation。
 
 ## Flow
 
 ```text
-Reranked Candidates
-→ Evidence Builder
+FinalCandidate Top-K
+→ Source Binder
 → Prompt Builder
 → LLM
 → Structured Output
-→ Evidence Validator
+→ Citation Validator
 → Claim Verifier / Bounded Repair
-→ Answer
+→ Backend Source Mapping
+→ Answer + References
 ```
 
 ## Rules
 
-- Prompt 明确要求只基于 Evidence；
-- Evidence 使用系统生成 ID；
-- Citation 后处理校验；
+- Prompt 明确要求只基于提供的 Source；
+- Source ID 由后端按请求生成，LLM 只能选择；
+- Citation 后处理先做 Source ID allowlist 校验，再做 claim-support 语义校验；
+- 文件名、版本、页码/Slide/Sheet、SourceSpan 只从 Chunk 回填，不从 LLM 输出采信；
 - 无足够证据时拒答；
-- 实际送入 Prompt 的 Evidence 必须随 QueryResponse 返回；引用子集由 claims 标明，未入选候选仅保存在 Trace。
+- 实际送入 Prompt 的 Source Binding 必须随 QueryResponse 返回；引用子集由 claims.source_ids 标明，未入选候选仅保存在 Trace。
 
 ---
 
@@ -1054,20 +1144,46 @@ class EvalCase(BaseModel):
 
 ## Retrieval Metrics
 
-核心：
+Retrieval / Fusion 主指标：
 
 ```text
-Recall@K
+EvidenceGroupRecall@K
+CompleteEvidence@K
+```
+
+其中：
+
+- BM25 / Dense 单路主要看 Recall@N；
+- RRF 主要看 Top-M 候选是否保持/提升证据覆盖，不能只看最终 Top-K；
+- Latency、候选数量与去重率作为诊断指标。
+
+## Reranking Metrics
+
+Reranker 主指标：
+
+```text
+nDCG@K
+```
+
+诊断指标：
+
+```text
 MRR
-```
-
-辅助：
-
-```text
 Precision@K
-NDCG
-Latency
+Recall@K
+Reranker Latency
 ```
+
+nDCG 使用冻结 relevance judgment；若只有二元相关性标签，则使用 binary gain 并在报告中明确，不把它包装成分级相关性。
+
+排序评分协议（与原文 GoldAnchor 分开保存为实验派生标注）：
+
+- 同一分块配置下，先固定所有待比较路径及参数，取各路径召回候选的并集作为每题共同 judgment pool；B0/B1/B2 的待评分结果也必须包含在内。标注人员依据原文判断相关性，隐藏路径名称、分数及排序；不得为每条路径分别选择 IDCG 候选池。
+- 原文 GoldAnchor 始终是跨分块事实依据；judgment 文件以 case_id、chunk_id、chunk_config_hash、relevance、reviewer 记录该实验的派生评分。更换分块配置须重新映射并复核，不能复用旧 Chunk 标签；跨分块结论以原文证据覆盖和生成质量为主，nDCG 需同时声明候选粒度变化。
+- 默认 binary relevance 为 0/1：Chunk 实际文本是否提供至少一项 required_fact 的有效支持片段（可为联合证据的一部分）。若采用分级评分，须事先冻结等级定义。`gain = 2**relevance - 1`，`DCG@K = Σ gain_i / log2(i+1)`；IDCG 为共同已标注池按 relevance 降序的前 K 项 DCG。
+- 每题 `nDCG@K = DCG@K / IDCG@K`；可回答题中 IDCG=0 记 0，并另报零相关候选池题数，不能剔除这类召回失败。结果不足 K 按缺失位置 gain=0 处理；Precision@K 为前 K 中 relevance>0 的数量除以 K。两者对可回答题宏平均，无答案题单独统计。
+- 所有被评分候选必须完成标注；存在未标注项则评分不完整，禁止据此发布。协议、路径配置先冻结；保留集标注由评测方在不反馈调参的条件下完成，再锁定 judgment 哈希并评分。查看评分后调整系统仍适用测试集转为开发数据的规则。
+
 
 ## Generation Metrics
 
@@ -1075,16 +1191,18 @@ Latency
 Correctness
 Faithfulness
 Citation Correctness
-Refusal Accuracy
+FalseAnswerRate / FalseRefusalRate
 ```
+
+`Refusal Accuracy` 可作为汇总辅助指标，但不替代 FalseAnswerRate 与 FalseRefusalRate。
 
 LLM-as-Judge 可辅助，但必须进行人工抽样复核。
 
 指标计算口径：
 
-- 核心 `EvidenceGroupRecall@K`：每道可回答题命中的 group 数 / 所需 group 数，再对题目宏平均；报告中可简称 Recall@K，但必须声明此口径，不能与按 Chunk 计数的 Recall 混用。主 K=5，同时报告 K=10。
-- `CompleteEvidence@K`：全部必需 group 均命中的可回答题比例；`MRR` 使用首次完整覆盖任一 group 的前缀排名倒数，无命中记 0。多证据题同时报告 CompleteEvidence，不能用 MRR 代替完整性。
-- Precision@K/NDCG 作为可选辅助指标，只在针对该实验候选进行了独立相关性/分级标注时报告；不得从不完整 anchor 集合把所有未标注 Chunk 判成无关。无答案题不参与 Recall/MRR 分母。
+- 核心 `EvidenceGroupRecall@K`：每道可回答题命中的 group 数 / 所需 group 数，再对题目宏平均；报告中可简称 Recall@K，但必须声明此口径，不能与按 Chunk 计数的 Recall 混用。Retriever/Fusion 重点报告各自候选预算 N/M；最终 Top-K 另行报告。
+- `CompleteEvidence@K`：全部必需 group 均命中的可回答题比例。`MRR` 作为排序诊断指标，使用首次完整覆盖任一 group 的前缀排名倒数，无命中记 0；多证据题同时报告 CompleteEvidence，不能用 MRR 代替完整性。
+- `nDCG@K` 是 Reranker 的主排序指标。冻结评测集必须为进入 Reranker 的候选建立 relevance judgment；有分级标签时使用 graded gain，仅有二元标签时使用 binary gain 并明确口径。Precision@K、MRR、Recall@K 作为诊断；不得把未标注 Chunk 默认判成无关。无答案题不参与 Recall/MRR/nDCG 分母。
 - `Correctness`：可回答题中完整覆盖 required_facts 且无错误事实的比例；误拒答记错。`Faithfulness`：非拒答输出中受到引用原文支持的原子事实数 / 全部原子事实数；无非拒答输出记 N/A，不可记满分。
 - `Citation Correctness`：引用 claim 与对应来源存在、版本正确且语义支持的有效配对数 / 全部 claim-citation 配对数。多证据共同支持的 claim 先判断引用集合是否联合支持，再检查各引用是否提供相应支持片段，不要求每条引用独立证明完整结论。另报引用覆盖率（有有效引用的原子事实比例）；未知 ID 单独计数，不与语义支持混为一谈。
 - `FalseAnswerRate`：无答案题中非拒答的比例；`FalseRefusalRate`：可回答题中拒答的比例。Refusal Accuracy 仅辅助报告，不能掩盖两类错误。
@@ -1107,7 +1225,7 @@ dense candidates + ranks
 rrf result
 reranker result
 top context
-evidence ids
+source map (source_id → chunk_id)
 llm structured output
 final answer
 refused
@@ -1117,7 +1235,7 @@ snapshot_id / corpus_manifest_id
 revision_ids / parse_artifact_ids
 config_hash / model revisions / prompt hashes
 候选及上下文 token 数 / 被预算排除的 Chunk 及原因
-claim validation results / repair attempts
+claim / citation validation results / repair attempts
 degraded / timeout / usage tokens
 ```
 
@@ -1159,10 +1277,11 @@ Trace 从最小服务层开始实现，CLI、Tool 和 HTTP 共享同一埋点。
 | Reranker 模型 | `BAAI/bge-reranker-v2-m3`，锁定模型 revision |
 | 模型/软件锁定 | Parser、Embedding、Reranker、LLM、Verifier、tokenizer、Python、依赖锁文件和 Elasticsearch 镜像版本/摘要写入 manifest；LLM/Verifier 必须显式配置，不用浮动别名宣称可复现 |
 | Chunk budget | 512 tokens；使用锁定 Embedding tokenizer；字符数不能代替 token 数 |
-| BM25 / Dense top_n | 各 50；候选不足返回实际数量，不填充重复项 |
-| RRF | k=60；rank 从 1 开始；按 chunk_id 去重，相同分数用 chunk_id 排序 |
-| Rerank 候选 | RRF 前 50 条，batch_size 初值 8；吞吐和显存实测后调参 |
-| 最终证据 | top_k 默认 5，范围 1–20；Tool 与 Query 使用同一 Evidence Builder 和预算 |
+| BM25 / Dense Top-N | 各 50；候选不足返回实际数量，不填充重复项 |
+| RRF | `k=60`；rank 从 1 开始；按 chunk_id 去重，相同分数用 chunk_id 排序 |
+| RRF Top-M | 默认 50；用于候选融合后的 pruning / reranker budget control |
+| Reranker | 输入 RRF Top-M，batch_size 初值 8；输出 Final Top-K；吞吐和显存实测后调参 |
+| Final Top-K | 默认 5，范围 1–20；Tool 与 Query 共用 Retrieval Core 的 N/M/K 预算；LLM Context Builder 预算仅适用于 Query |
 | 上下文预算 | LLM tokenizer 下证据总量最多 6000 tokens，输出预留 1500；连同系统 Prompt/Query 必须低于所选模型实际上限 |
 | 输入上限处理 | 同时校验 Embedding 输入及 Reranker 的 Query+Chunk 输入。模型实际最大长度从锁定配置验证；超限不得静默截断 |
 | 在线超时 | BM25/Dense 各 5 s，Reranker 10 s，单次生成/验证调用各 30 s，总 deadline 90 s，纠正调用也受总 deadline 约束 |
@@ -1170,7 +1289,7 @@ Trace 从最小服务层开始实现，CLI、Tool 和 HTTP 共享同一埋点。
 
 模型兼容性预检属于 M1：验证本机硬件、模型加载、向量维度/归一化及距离函数、过滤查询、最大输入、中文/工程术语样例。检查失败必须调整并锁定配置后再形成基线，不把表中初值当作已验证兼容性。
 
-Context Builder 按最终排序依次选择完整 Chunk；加入某块超预算时跳过并记录，继续考察后续候选，返回数量可少于 top_k。候选非空但无块可容纳时返回 `ContextBudgetExceeded`（422），不当作知识库无答案；候选原本为空按 3.6/3.7 的空检索规则处理。Embedding 或 Reranker Query 输入本身超限同样返回 `InputTooLong`（422）。
+Tool 返回完整 Final Top-K，不加载 LLM tokenizer，也不执行 LLM 上下文裁剪。Query 的 Context Builder 按 Final Top-K 排序依次选择完整 Chunk；加入某块超预算时跳过并记录，继续考察后续候选，实际送入 Prompt 的 Source 数量可少于请求 top_k。候选非空但无块可容纳时返回 `ContextBudgetExceeded`（422），不当作知识库无答案；候选原本为空按 3.6/3.7 的空检索规则处理。Embedding 或 Reranker Query 输入本身超限同样返回 `InputTooLong`（422）。
 长 Chunk 在入库阶段按所有固定模型约束细分；线上遇到超限旧索引时标记索引不兼容并要求重建，不直接截断。Reranker 失败可降级，但配置不兼容不是正常降级路径。
 
 离线与在线模型共享硬件时采用资源信号量，优先在线请求；阻塞推理不直接运行在异步 Web event loop 内。记录硬件、冷/热启动、并发、语料规模和 token 用量，分别报告检索与整体请求 p50/p95。
@@ -1181,13 +1300,14 @@ Context Builder 按最终排序依次选择完整 Chunk；加入某块超预算�
 
 # 5. System Invariants
 
-## 5.1 Evidence Rules
+## 5.1 Citation / Source Rules
 
-1. 不存在的 Evidence ID 不能通过校验或进入成功响应；
-2. 所有 Citation 必须可从 `evidence_id → chunk_id → revision_id / parse_artifact_id → source_spans → 原文件位置` 回溯；
-3. Evidence 不足必须允许拒答；
-4. Retriever 返回内容与 Citation 来源必须一致。
-5. 引用 ID 合法与语义支持分别校验；关键事实只能由通过校验的 claims 渲染，不能附加未验证的自由答案。
+1. 不存在于本次请求 Source Map 的 Source ID 不能通过校验或进入成功响应；
+2. 所有 Citation 必须可从 `source_id → FinalCandidate → chunk_id → revision_id / parse_artifact_id → source_spans → 原文件位置` 回溯；
+3. 检索证据不足必须允许拒答；
+4. Prompt 中的 Source 内容与 Citation 回填来源必须来自同一个 Chunk；
+5. Source ID 合法与语义支持分别校验；关键事实只能由通过校验的 claims 渲染，不能附加未验证的自由答案；
+6. Source ID 是请求内引用标识，不得持久化为第二套知识事实实体。
 
 ## 5.2 Determinism Rules
 
@@ -1207,6 +1327,9 @@ Context Builder 按最终排序依次选择完整 Chunk；加入某块超预算�
 ### 5.3.1 Snapshot Publish Protocol
 
 V1 采用单入库 worker + 不可变完整快照，优先正确性，不实现跨服务分布式事务。
+
+阶段能力约束：M4 允许仅供开发/评测的 `retrieval_profile=bm25_only` 快照，manifest 显式记录 profile；该阶段不要求 dense_vector，只验证 BM25、来源和过滤字段。M5 起完整服务使用 `retrieval_profile=hybrid`，必须验证以下全部双路规则。BM25-only 快照不能作为 Hybrid 服务的活动快照，尝试 Hybrid 查询返回 RetrievalFailure；切换到 M5 时补全向量、验证并发布新的 Hybrid 快照。B0 是显式单路实验，可在 Hybrid 快照上运行，不构成线上单路降级。
+
 
 1. 基于当前快照构建新 `snapshot_id`，manifest 保存全部保留的文档修订/Chunk 和每个文档的 current revision。新文件修订只有发布成功后才成为 current；不按业务 version 字符串比较大小。
 2. 在新的 Elasticsearch 物理索引写入完整快照。未变化 Chunk 可从旧快照复制并复用相同模型 revision 的向量；新/变化 Chunk 必须同时具备 BM25 文本、向量、过滤字段、来源定位和 current 标记。
@@ -1256,7 +1379,7 @@ V1 采用单入库 worker + 不可变完整快照，优先正确性，不实现�
 - chunk validation；
 - RRF；
 - metadata filter；
-- evidence ID validation；
+- source ID allowlist / citation mapping validation；
 - refusal policy；
 - Pydantic schema validation。
 
@@ -1267,10 +1390,10 @@ V1 采用单入库 worker + 不可变完整快照，优先正确性，不实现�
 至少存在以下端到端测试：
 
 ```text
-DOCX → Parse → Chunk → Index → Query → Evidence
-PDF  → Parse → Chunk → Index → Query → Evidence
-PPTX → Parse → Chunk → Index → Query → Evidence
-XLSX → Parse → Chunk → Index → Query → Evidence
+DOCX → Parse → Chunk → Index → Query → FinalCandidate
+PDF  → Parse → Chunk → Index → Query → FinalCandidate
+PPTX → Parse → Chunk → Index → Query → FinalCandidate
+XLSX → Parse → Chunk → Index → Query → FinalCandidate
 ```
 
 以及：
@@ -1301,41 +1424,73 @@ Query → BM25 + Dense → RRF → Reranker → LLM → Citation
 ```text
 B0: BM25
 B1: Dense
-B2: Hybrid (BM25 + Dense + RRF)
-B3: Hybrid + Reranker
+B2: Hybrid (BM25 + Dense + RRF Top-M)
+B3a: BM25 + Dense → Union + Dedup → Reranker → Top-K
+B3b: BM25 + Dense → RRF Top-M → Reranker → Top-K   # V1 默认链路
 ```
 
 Baseline 回答：
 
-> 最终复杂方案是否比简单方案更好？
+> 最终复杂方案是否比简单方案更好？RRF 在 Reranker 前是否通过更小候选预算获得可接受或更好的排序质量与延迟？
+
+必须同时保存：
+
+- Retrieval/Fusion：EvidenceGroupRecall@N/M、CompleteEvidence@N/M；
+- Reranker：nDCG@K、MRR、Precision@K；
+- 两条 Reranker 路径的实际候选数量与 Reranker latency；
+- Final Top-K 的来源覆盖与最终 Generation 输入 token 数。
+
+---
 
 # 6.4 Ablation
 
 至少进行：
 
 ```text
-Full System
-- Dense
-- Reranker
-- Structure-aware Chunking
+A0: Full System (RRF + Reranker)
+A1: - Dense
+A2: - Reranker
+A3: - Structure-aware Chunking
+A4: RRF + Reranker → Union + Dedup + Reranker
 ```
 
-或等价的逐步增量实验。
+其中 A4 是 RRF 专项消融：
+
+```text
+BM25 Top-N + Dense Top-N
+├── Union + Dedup → Reranker → Top-K
+└── RRF Top-M    → Reranker → Top-K
+```
+
+必须比较：
+
+```text
+nDCG@K
+MRR
+Precision@K
+候选数量
+Reranker latency
+E2E latency
+```
 
 Ablation 回答：
 
-> 最终效果提升究竟来自哪个模块？
+> 最终效果提升究竟来自哪个模块？RRF 的候选融合与预算控制是否在质量/成本之间提供了实际价值？
 
 所有实验必须固定：
 
-- Test Set；
+- Test Set / Validation Set 按用途区分；
 - Prompt；
 - LLM；
-- Top-K；
-- 其他非目标变量。
+- Final Top-K；
+- BM25 / Dense Top-N；
+- 除目标变量外的其他配置。
 
 分块消融固定原文件、解析产物、原文 GoldAnchor、模型和最终上下文 token 总预算；各策略分别生成 Chunk 与锚点映射。top_k 相同不等于文本量相同，因此必须同时报告实际 context tokens 和输入覆盖率。
-Reranker 消融固定召回及融合候选集；Embedding 消融以 BM25-only + 相同后续模块对照。候选 top_n、RRF k、tokenizer、软件/模型 revision、Verifier、硬件和配置哈希写入实验 manifest。记录随机种子与生成参数，但不承诺外部模型服务逐字确定性。
+Reranker 消融固定召回及融合候选集；Embedding 消融以 BM25-only + 相同后续模块对照。RRF 专项消融固定两路 Top-N、Reranker 模型、Final Top-K 与硬件，并同时报告 Union 候选数和 RRF Top-M 候选数，不能只比较质量而忽略计算预算。
+候选 Top-N/Top-M/Top-K、RRF k、tokenizer、软件/模型 revision、Verifier、硬件和配置哈希写入实验 manifest。记录随机种子与生成参数，但不承诺外部模型服务逐字确定性。
+
+---
 
 # 6.5 Generation Evaluation
 
@@ -1375,7 +1530,7 @@ Should-answer-but-refused
 - Baseline 可复现；
 - Ablation 可运行；
 - Test Set 冻结；
-- Citation 无伪造；
+- Citation Source ID 无伪造且来源可回溯；
 - Unanswerable Query 可拒答；
 - Trace 可定位一次完整请求；
 - Tool 可独立调用；
@@ -1387,6 +1542,7 @@ Should-answer-but-refused
 |---|---|---|
 | EvidenceGroupRecall@5 | ≥ 0.85 | 可回答题宏平均，见 4.6 |
 | CompleteEvidence@5 | ≥ 0.75 | 全部必需证据组均覆盖 |
+| Reranker nDCG@5 | ≥ B2，且与 B3a 的允许差值写入冻结协议 | Reranker 主排序指标；binary/graded gain 口径必须固定 |
 | Correctness | ≥ 0.80 | 可回答题，拒答/系统错误不剔除 |
 | Faithfulness | ≥ 0.95 | 人工事实支持标注；N/A 不通过 |
 | Citation Correctness / 覆盖率 | 均 ≥ 0.95 | 人工语义与来源核对 |
@@ -1398,7 +1554,7 @@ Should-answer-but-refused
 
 四种格式及关键问题类型分别报告样本量与结果；任一类别 Correctness < 0.60 阻止发布，不能用总体平均掩盖明显失效。报告 95% 区间和小样本限制；门槛针对本次点估计，不宣称统计保证。
 
-复杂度决策：B3 至少不得低于 B0/B1 中较优者的 Recall@5 和 MRR 点估计，并满足性能门槛。未达到时保留实验结果、继续验证或重新修订默认检索方案，不能仅因“链路更完整”判定通过。只有配对实验支持时才宣称提升，未证实的提升不写成成果。
+复杂度决策：V1 默认链路 B3b（RRF + Reranker）至少不得低于 B0/B1 中较优者的 EvidenceGroupRecall@5，并满足 Reranker nDCG@5 与性能门槛。B3b 还必须与 B3a（Union + Reranker）同时报告质量、候选数量和延迟；若 RRF 导致实质质量退化，则阻止发布并调整 N/M/k 或实现，不能仅因“链路更完整”判定通过。只有配对实验支持时才宣称提升，未证实的提升不写成成果。
 
 ---
 
@@ -1406,25 +1562,59 @@ Should-answer-but-refused
 
 # 7.1 Development Order
 
-按依赖关系开发，不按 UI 开发：
+按依赖关系开发，不按 UI 开发；Evaluation 与 Trace 从 M0/M1 贯穿后续里程碑。
 
 ```text
 M0  开发 fixtures / 验证集草案 / 原文锚点 / 评测协议草案
-M1  Core Models / Config / 模型兼容性预检 / 最小 Trace / 公共服务层
-M2  DOCX + XLSX Parser / 定位目录 / 原文存储
+
+M1  Core Models / Config / 模型兼容性预检 / 最小 Trace
+    依赖锁定 / Linux Container Skeleton / 公共服务层骨架
+
+M2  DOCX + XLSX Parser / 定位目录 / 原文与 Parse Artifact 存储
+
 M3  DOCX + XLSX Chunker / SourceSpan Validation
-M4  BM25 Index / Retrieve / 第一份检索评测报告
-M5  Dense Index / Retrieve / Snapshot 发布与故障恢复
-M6  RRF / B0-B2 对照 / search_knowledge 服务契约
-M7  Reranker / B3 对照 / 第一里程碑验收
-M8  Evidence / Claims / Generation / Verifier / Refusal
-M9  PDF + PPTX Parser/Chunker / 四格式与版本验收
-M10 FastAPI / 持久化入库任务 / Trace 查询 / 资源限额
-M11 冻结测试协议 / Baseline + Ablation / 人工评测 / Bad Case
-M12 Docker / 第二台机器启动 / 发布门槛 / README 实测报告
+
+M4  BM25 Index / Retrieve
+    最小 Snapshot Build + Validate + Publish
+    第一份 B0 Retrieval Evaluation
+
+M5  Dense Index / Retrieve / B1 Evaluation
+    完整 Snapshot 发布
+    Update / Delete / Rollback / Failure Recovery
+
+M6  RRF / Candidate Fusion + Top-M Budget
+    B0-B2 对照与 RRF 参数/候选窗口验证
+
+M7  Reranker / Final Top-K
+    B3a Union+Reranker vs B3b RRF+Reranker
+    search_knowledge Tool 实现
+    第一里程碑验收
+
+M8  Source Binding / Claims / Generation
+    Citation Validation / Verifier / Refusal
+    Generation Evaluation
+
+M9  PDF + PPTX Parser/Chunker
+    四格式端到端 / 四格式 Version + Citation 验收
+
+M10 FastAPI / 持久化入库任务 / Trace 查询
+    资源限额 / Queue / Timeout
+
+M11 冻结测试协议与测试集
+    Final Baseline + Ablation / 人工评测 / Bad Case / Performance
+
+M12 最终 Docker Compose / 持久卷
+    第二台机器启动 / 发布门槛 / README / 最终实测报告
 ```
 
-Evaluation 和 Trace 从 M0/M1 贯穿后续里程碑；M11 是最终发布评测，不是首次实现评测。每增加一个模块，都在验证集比较前后结果。M1 公共服务层可被 CLI/pytest 调用，M10 HTTP 仅包装同一逻辑，遵守“Evaluation 通过公开接口”的依赖规则。
+执行原则：
+
+- M4 第一次真实写入 Elasticsearch 时就建立最小不可变 Snapshot 发布链路，避免 M5 再返工 Indexing；
+- M5 在 Dense 接入时把双路一致性、更新、删除、回滚和故障恢复一起闭环；M9 只验证这套版本机制对新增 PDF/PPTX 同样成立；
+- `search_knowledge` Contract 已在第 3.7 节冻结，M7 在 Reranker/FinalCandidate 稳定后实现 Tool，避免 M6 提前绑定未完成的 Retrieval Core；
+- Docker/容器分两层：M1 解决依赖锁定和 Linux Container Skeleton，M12 才做最终 Compose、持久化卷与 clean-machine 交付；
+- M11 是最终发布评测，不是首次实现 Evaluation；每增加一个模块，都在验证集比较前后结果；
+- M1 公共服务层可被 CLI/pytest 调用，M10 HTTP 仅包装同一逻辑，遵守“Evaluation 通过公开接口”的依赖规则。
 
 # 7.2 Current Milestone
 
@@ -1432,44 +1622,63 @@ Evaluation 和 Trace 从 M0/M1 贯穿后续里程碑；M11 是最终发布评测
 
 ```text
 DOCX + XLSX
-→ Chunk
-→ BM25 + Dense
-→ RRF
-→ Reranker
-→ Evidence
+→ Unified Chunk
+→ Single Elasticsearch Snapshot
+→ BM25 Top-N + Dense Top-N
+→ RRF Top-M
+→ Reranker Final Top-K
+→ search_knowledge Tool
 ```
 
-再补 PDF / PPTX，避免四种解析器同时展开导致项目无法闭环。
+Generation / Citation 在 M8 进入第二闭环，再补 PDF / PPTX，避免四种解析器同时展开导致项目无法闭环。
 
-第一里程碑还必须交付：至少 20 道带原文锚点的开发/验证问题（不充当冻结发布测试集）、B0-B3 检索结果、逐阶段 Trace、稳定来源定位、重复入库幂等与失败不发布测试。此时只能说明检索链路已打通，不能声明生成质量或 V1 发布完成。
+第一里程碑还必须交付：
+
+- 至少 20 道带原文锚点的开发/验证问题（不充当冻结发布测试集）；
+- B0 / B1 / B2 / B3a / B3b 检索结果；
+- 逐阶段 Trace，包含 N/M/K、RRF k、候选数量、rank/score 与 latency；
+- 稳定来源定位；
+- 最小 Snapshot 构建/发布；
+- 重复入库幂等、更新/删除、失败不发布、回滚基础测试；
+- `search_knowledge` 可通过公共服务层独立调用。
+
+此时只能说明**检索与 Tool 链路已打通**，不能声明 Generation/Citation 质量或 V1 发布完成。
 
 # 7.3 Development Progress
 
-最后更新：2026-09-07。
+最后更新：2026-09-08。
 
-当前阶段：开发准备。DEV_SPEC v1.1 的规格修订已完成；当前仓库尚无应用实现、测试集或实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
+当前阶段：开发准备。DEV_SPEC v1.2 的规格修订已完成；已有 40 题修订合成开发集、12 题独立文档族验证草案、评测协议草案及原文/分组校验器。旧 20 题作为历史夹具保留，不能重复计为独立数据。人工复核待完成，尚无应用实现、冻结测试集或模型实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
 
 状态：**未开始 → 进行中 → 待验收 → 已完成**；遇到无法继续的问题标记 **阻塞**，同时写明原因和解除条件。只有满足第 8 章 DoD 且提供验收依据，才能标记已完成。
 
 | 阶段 | 主要交付物 | 完成所需验收依据 | 当前状态 | 实际产物 / 验证记录 |
 |---|---|---|---|---|
-| M0 评测准备 | 开发 fixtures、原文锚点、验证集及评测协议草案 | 锚点可定位；可回答/不可回答标签经核对；数据划分明确 | 未开始 | — |
-| M1 工程基础 | 核心模型、配置、模型预检、最小 Trace、公共服务层 | Schema 验证、配置加载、模型兼容性预检和 Trace 测试记录 | 未开始 | — |
+| M0 评测准备 | 开发 fixtures、原文锚点、验证集及评测协议草案 | 锚点可定位；可回答/不可回答标签经核对；数据划分明确 | 进行中 | evaluation/README.md：40 题 dev + 12 题 validation 草案；原文/分组校验及校验器回归测试通过；人工复核、真实候选标注待完成 |
+| M1 工程基础 | 核心模型、配置、模型预检、最小 Trace、依赖锁定、Linux Container Skeleton、公共服务层 | Schema 验证、配置加载、模型兼容性预检、容器骨架启动和 Trace 测试记录 | 未开始 | — |
 | M2 DOCX/XLSX 解析 | 两类 Parser、定位目录、原文与解析产物存储 | 两类正常/异常 fixture 通过；原文位置可回溯 | 未开始 | — |
 | M3 DOCX/XLSX 分块 | 两类 Chunker、SourceSpan 校验、超长记录处理 | 分块稳定性、边界、来源映射和长记录尾部测试通过 | 未开始 | — |
-| M4 BM25 | 全文索引、检索、B0 评测报告 | 中文/精确术语/过滤测试通过；首份验证集检索结果可复现 | 未开始 | — |
-| M5 Dense 与快照 | 向量索引、检索、快照发布和恢复 | B1 结果；双路一致性、幂等、失败不发布及重启恢复测试 | 未开始 | — |
-| M6 RRF 与 Tool Core | 融合、去重、search_knowledge 服务实现 | RRF/过滤测试；B0–B2 对照；Tool 服务可独立调用 | 未开始 | — |
-| M7 Reranker | 精排、降级、第一里程碑报告 | B3 对照；降级 Trace；第 7.2 节全部交付物齐备 | 未开始 | — |
-| M8 生成与证据 | Claims、生成、语义验证、有限纠正、拒答 | 引用/数值/版本/拒答及模型异常测试；验证集生成结果 | 未开始 | — |
-| M9 PDF/PPTX 扩展 | 两类 Parser/Chunker、四格式和版本场景 | 四格式端到端通过；来源定位、版本选择和冲突测试 | 未开始 | — |
+| M4 BM25 | 全文索引、检索、最小 Snapshot Build/Publish、B0 评测报告 | 中文/精确术语/过滤测试通过；首份验证集检索结果可复现；最小快照可验证后发布 | 未开始 | — |
+| M5 Dense 与生命周期 | 向量索引、检索、完整快照、Update/Delete/Rollback/Recovery | B1 结果；双路一致性、幂等、更新删除、失败不发布、回滚及重启恢复测试 | 未开始 | — |
+| M6 RRF | 融合、去重、Top-M Candidate Budget、B0–B2 对照 | RRF/过滤测试；N/M/k 配置可追踪；B0–B2 对照可复现 | 未开始 | — |
+| M7 Reranker 与 Tool | 精排、降级、B3a/B3b、search_knowledge、第一里程碑报告 | Union+Reranker vs RRF+Reranker 对照；Tool 可独立调用；降级 Trace；第 7.2 节全部交付物齐备 | 未开始 | — |
+| M8 生成与 Citation | Source Binding、Claims、生成、Citation/语义验证、有限纠正、拒答 | Source ID/引用/数值/版本/拒答及模型异常测试；验证集生成结果 | 未开始 | — |
+| M9 PDF/PPTX 扩展 | 两类 Parser/Chunker、四格式端到端与版本/Citation场景 | 四格式端到端通过；既有 Update/Delete/Version/Citation 机制在新增格式上验收 | 未开始 | — |
 | M10 HTTP 与任务运行 | FastAPI、持久化入库任务、Trace API、资源限额 | 请求/响应、错误码、任务重启、队列与超时验收记录 | 未开始 | — |
 | M11 发布评测 | 冻结协议/测试集、Baseline、Ablation、人工评分、Bad Case | 配置与数据哈希、逐题结果、复核记录及第 6.7 节质量结论 | 未开始 | — |
-| M12 交付与发布 | Docker、持久卷、启动文档、真实实验报告 | 第二台机器启动记录；全部发布门槛与 System DoD 核对通过 | 未开始 | — |
+| M12 交付与发布 | 最终 Docker Compose、持久卷、启动文档、真实实验报告 | 第二台机器 clean-machine 启动记录；全部发布门槛与 System DoD 核对通过 | 未开始 | — |
 
 进度汇总：**已验收 0 / 13 个阶段**。阶段工作量不同，该计数不代表总工时完成百分比。
 
-下一步：从 M0 开始整理 DOCX/XLSX 开发样本和带原文锚点的问题，同时明确 M1 的运行环境配置。当前没有记录已确认的阻塞项；数据可用性和硬件兼容性尚待检查。
+下一步：人工复核 M0 合成题与锚点及独立文档族划分，补充真实资料；正式分块后建立候选相关性 judgment。M1 锁定运行依赖并验证 Linux 部署。当前没有记录已确认的阻塞项；真实数据可用性和模型硬件兼容性尚待检查。
+
+## 跨平台开发与验收约束
+
+- Linux 为服务部署目标，Windows 为受支持开发环境；共享 Python 业务代码，不维护两套业务实现。当前标准库评测校验器以 Python 3.11 / 3.12 为验证矩阵，完整服务版本在 M1 根据模型和解析依赖兼容结果锁定。
+- 路径使用 pathlib，禁止硬编码盘符、用户目录和反斜杠分隔符；文本显式 UTF-8，文件名大小写一致。数据、模型缓存和临时目录通过配置传入，不能依赖当前工作目录。
+- 生产解析与服务启动不得依赖 Windows COM、Microsoft Office 或 PowerShell。额外系统工具须列入 Linux 镜像依赖，并在启动预检中报告缺失项。
+- M1 完成依赖锁定与 Linux Container Skeleton；数据库、索引及模型缓存使用可配置持久化目录。M12 再完成最终 Compose、持久卷和 clean-machine 交付。GPU 为单独验证项，记录驱动/CUDA/模型框架组合；未验证前不得承诺不同平台性能一致。
+- 当前 CI 已配置在 Ubuntu 与 Windows 校验开发集和原文件证据；配置存在不代表已运行通过，验收需附实际 CI 记录。实现服务后扩展到公共逻辑测试、四种文档解析、服务启动及健康检查；Linux 容器的入库→检索→引用回溯冒烟测试通过后，才可声明完整服务支持 Linux。
 
 维护规则：
 
@@ -1553,7 +1762,25 @@ V1 完成后再评估：
 
 **逐条事实引用并独立验证，校验失败不输出自由答案。**
 
-原因：ID 存在只能证明引用对象存在，不能证明工程结论正确；语义验证仍需人工评测约束。
+原因：Source ID 存在只能证明本次请求中的真实 Chunk 存在，不能证明工程结论正确；语义验证仍需人工评测约束。
+
+## Decision 010
+
+**不建立独立 Evidence 事实实体，Citation 使用 request-local Source ID。**
+
+原因：检索 Chunk 是唯一证据事实源；Source ID 只负责让 LLM 选择已提供来源，后端再映射真实 Chunk 与原文位置，避免 RetrievalResult/Evidence 两份内容产生漂移。
+
+## Decision 011
+
+**RRF 保留为候选融合与预算控制层，最终排序由 Reranker 完成。**
+
+原因：BM25/Dense 两路 Top-N 并集可能显著大于 Cross-Encoder 预算；RRF Top-M 先低成本融合和截断，再由 Reranker 对有限候选做联合语义排序。必须通过 Union+Reranker 对照验证质量/延迟价值。
+
+## Decision 012
+
+**同一 Elasticsearch Snapshot 同时承载 content 与 dense_vector。**
+
+原因：同一 Chunk 只保留一个索引事实文档，BM25 与 Dense 分别使用倒排字段和向量字段，避免双存储发布协调；Embedding 仍是索引派生数据，不进入 Chunk 核心 Contract。
 
 ---
 
@@ -1589,7 +1816,7 @@ V1 完成必须同时具备：
 - [ ] BGE-M3 Dense 可检索；
 - [ ] RRF 可融合；
 - [ ] BGE-Reranker 可精排；
-- [ ] Evidence-bound Generation 可运行；
+- [ ] Source-bound / Evidence-bound Generation 可运行；
 - [ ] Citation 可回溯源文档；
 - [ ] 无答案问题可拒答；
 - [ ] Frozen Eval Set 存在；
@@ -1604,7 +1831,7 @@ V1 完成必须同时具备：
 - [ ] Docker 可启动；
 - [ ] README 包含架构、运行、Evaluation、真实实验结果。
 - [ ] 原文锚点可跨分块实验重新映射，标签不绑定某次 Chunk ID；
-- [ ] Claims 引用/语义校验及拒答跨字段约束通过；
+- [ ] Claims Source ID / Citation / 语义校验及拒答跨字段约束通过；
 - [ ] 快照发布、并发查询、更新/删除、重启恢复和回滚测试通过；
 - [ ] 4.9 模型/运行配置 manifest 与性能目标已锁定；
 - [ ] 6.7 功能和质量门槛均有冻结测试结果证明。
@@ -1634,11 +1861,13 @@ V1 完成必须同时具备：
         ↓
 统一 Chunk Contract
         ↓
-BM25 + BGE-M3 Dense
+BM25 Top-N + BGE-M3 Dense Top-N
         ↓
-RRF
+RRF Top-M
         ↓
-BGE-Reranker
+BGE-Reranker Final Top-K
+        ↓
+Request-local Source Binding
         ↓
 Evidence-bound Generation
         ↓
@@ -1651,4 +1880,4 @@ FastAPI + search_knowledge Tool
 
 一句话架构原则：
 
-> **解析层保留格式特性，Chunking 层允许策略多态，检索层统一数据 Contract；模型负责语义生成，程序负责证据边界、验证与可追溯性。**
+> **解析层保留格式特性，Chunking 层允许策略多态，检索层统一数据 Contract；RRF 负责候选融合与预算控制，Reranker 负责最终精排；模型负责语义生成，程序负责 Source ID、证据边界、验证与可追溯性。**

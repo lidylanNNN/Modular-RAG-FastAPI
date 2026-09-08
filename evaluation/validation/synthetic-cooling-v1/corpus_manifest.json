@@ -1,0 +1,22 @@
+{
+  "dataset_id": "validation-synthetic-cooling-v1",
+  "synthetic": true,
+  "split": "validation",
+  "parser_identity": "fixture-locator-v1",
+  "sources": [
+    {
+      "key": "cooling",
+      "document_id": "4b782c21-57ed-5d27-936a-0dc4780f1be8",
+      "revision_id": "e62382b328d549764ced56afe4ac944f68aee223e09cc5b864ff66d4672e789c",
+      "parse_artifact_id": "ebf2a1bf8556f738b76ae7354c8097f4833ef2dc019bd217d02ccf21a672124c",
+      "content_hash": "f7e8a870f3f064156d187b319075ad21526c5d4102882c7e5cb8e4dd8b65bc13",
+      "file_name": "synthetic_cooling.xlsx",
+      "path": "corpus/synthetic_cooling.xlsx",
+      "file_type": "xlsx",
+      "version": "1.0",
+      "is_current": true
+    }
+  ],
+  "notice": "合成资料，非真实业务效果证据。",
+  "corpus_manifest_id": "265b39a4eb8e6367e28cd4f4c9c36332210852d642d0ebf68162b78d3e46f4b7"
+}

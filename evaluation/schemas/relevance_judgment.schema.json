@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experiment-derived candidate relevance judgment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "chunk_id", "chunk_config_hash", "corpus_manifest_id", "candidate_pool_hash", "relevance", "reviewer", "reviewed_at", "rationale"],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "chunk_id": {"type": "string", "minLength": 1},
+    "chunk_config_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "corpus_manifest_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidate_pool_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relevance": {"type": "integer", "enum": [0, 1]},
+    "reviewer": {"type": "string", "minLength": 1},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "rationale": {"type": "string", "minLength": 1}
+  },
+  "$comment": "Default binary judgments only. Do not populate fabricated chunk IDs before retrieval. A graded protocol requires a separately versioned schema."
+}

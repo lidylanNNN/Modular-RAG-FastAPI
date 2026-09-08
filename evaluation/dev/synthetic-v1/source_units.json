@@ -1,0 +1,284 @@
+[
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-5",
+    "canonical_text": "动力请求报文名称为 SYN_PowerReq，发送周期为 20 ms。报文中的请求有效标志 SYN_ReqValid：0 表示无效，1 表示有效，其他值保留。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 5,
+      "requirement_id": "R01"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-7",
+    "canonical_text": "启动屏蔽期结束后，若距最后一帧有效 SYN_PowerReq 的时间达到 100 ms，则置位通信超时故障 SYN_COMM_TIMEOUT。未达到该阈值不置位；不能用丢帧次数替代时间判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 7,
+      "requirement_id": "R02"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-9",
+    "canonical_text": "自控制器上电起的前 300 ms 为通信超时诊断屏蔽期。屏蔽期间仍接收并更新时间戳，但不置位 SYN_COMM_TIMEOUT；屏蔽结束后按通信超时规则判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 9,
+      "requirement_id": "R03"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-11",
+    "canonical_text": "SYN_COMM_TIMEOUT 置位后，连续收到 5 帧校验通过且 SYN_ReqValid=1 的 SYN_PowerReq，清除当前通信超时状态。中途收到无效帧则连续计数归零。此动作不等于清除已存储的诊断历史；本资料不规定历史清除服务。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 11,
+      "requirement_id": "R04"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-16",
+    "canonical_text": "温度信号 SYN_MotorTemp 达到 90 ℃时进入热降额；只有温度降至 85 ℃或以下并连续保持 10 s，才退出热降额。资料不规定降额曲线或传感器标定参数。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 16,
+      "requirement_id": "R05"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-18",
+    "canonical_text": "只有 SYN_ReqValid=1 且当前没有 SYN_COMM_TIMEOUT 时，才允许采用本帧请求值；否则本周期采用零请求值。资料未给出请求值的物理量程或最大允许扭矩。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 18,
+      "requirement_id": "R06"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-20",
+    "canonical_text": "供电电压 SYN_SupplyVoltage 严格低于 9 V 或严格高于 16 V，并连续保持 100 ms，才置位电压故障。电压回到闭区间 [9 V, 16 V] 时，尚未完成的异常持续计时归零；恰好 9 V 或 16 V 不属于异常。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 20,
+      "requirement_id": "R07"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+    "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+    "unit_id": "body-22",
+    "canonical_text": "本规范只定义合成控制器的上述接口与判定行为，不指定 MCU 型号、诊断服务编号、标定数据、量产车型或事故统计。历史案例中的验证次数仅为合成案例记录，不能推广为可靠性指标。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 22,
+      "requirement_id": "R08"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-5",
+    "canonical_text": "动力请求报文名称为 SYN_PowerReq，发送周期为 20 ms。报文中的请求有效标志 SYN_ReqValid：0 表示无效，1 表示有效，其他值保留。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 5,
+      "requirement_id": "R01"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-7",
+    "canonical_text": "启动屏蔽期结束后，若距最后一帧有效 SYN_PowerReq 的时间达到 150 ms，则置位通信超时故障 SYN_COMM_TIMEOUT。未达到该阈值不置位；不能用丢帧次数替代时间判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 7,
+      "requirement_id": "R02"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-9",
+    "canonical_text": "自控制器上电起的前 500 ms 为通信超时诊断屏蔽期。屏蔽期间仍接收并更新时间戳，但不置位 SYN_COMM_TIMEOUT；屏蔽结束后按通信超时规则判定。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 9,
+      "requirement_id": "R03"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-11",
+    "canonical_text": "SYN_COMM_TIMEOUT 置位后，连续收到 5 帧校验通过且 SYN_ReqValid=1 的 SYN_PowerReq，清除当前通信超时状态。中途收到无效帧则连续计数归零。此动作不等于清除已存储的诊断历史；本资料不规定历史清除服务。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 11,
+      "requirement_id": "R04"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-16",
+    "canonical_text": "温度信号 SYN_MotorTemp 达到 90 ℃时进入热降额；只有温度降至 85 ℃或以下并连续保持 10 s，才退出热降额。资料不规定降额曲线或传感器标定参数。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 16,
+      "requirement_id": "R05"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-18",
+    "canonical_text": "只有 SYN_ReqValid=1 且当前没有 SYN_COMM_TIMEOUT 时，才允许采用本帧请求值；否则本周期采用零请求值。资料未给出请求值的物理量程或最大允许扭矩。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 18,
+      "requirement_id": "R06"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-20",
+    "canonical_text": "供电电压 SYN_SupplyVoltage 严格低于 9 V 或严格高于 16 V，并连续保持 100 ms，才置位电压故障。电压回到闭区间 [9 V, 16 V] 时，尚未完成的异常持续计时归零；恰好 9 V 或 16 V 不属于异常。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 20,
+      "requirement_id": "R07"
+    }
+  },
+  {
+    "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+    "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+    "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+    "unit_id": "body-22",
+    "canonical_text": "本规范只定义合成控制器的上述接口与判定行为，不指定 MCU 型号、诊断服务编号、标定数据、量产车型或事故统计。历史案例中的验证次数仅为合成案例记录，不能推广为可靠性指标。",
+    "locator": {
+      "part": "word/document.xml",
+      "body_child_1based": 22,
+      "requirement_id": "R08"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-5",
+    "canonical_text": "案例编号: SYN-F001\n现象: 任务调度抖动时出现通信超时误报\n根因: 旧实现按丢帧次数累加，未使用最后有效帧时间戳\n修正措施: 改为时间差判定，阈值从所选规范版本读取\n验证记录: 注入调度抖动，分别检查阈值之前和恰好达到阈值时的行为",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 5,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F001"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-6",
+    "canonical_text": "案例编号: SYN-F002\n现象: 上电阶段错误置位通信超时\n根因: 启动屏蔽期未实现\n修正措施: 屏蔽期间保留接收和时间戳更新，仅抑制故障置位\n验证记录: 覆盖上电初期、屏蔽结束前一刻及结束时刻",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 6,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F002"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-7",
+    "canonical_text": "案例编号: SYN-F003\n现象: 短时电压越界引发故障误报\n根因: 正常电压出现后没有清零异常持续计时，多个短脉冲被累加\n修正措施: 电压回到正常闭区间时将异常持续计时归零\n验证记录: 注入 40 ms 越界、20 ms 正常、70 ms 越界，期望不置位故障",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 7,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F003"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-8",
+    "canonical_text": "案例编号: SYN-F004\n现象: 通信超时恢复条件过早满足\n根因: 无效帧没有清零连续有效帧计数\n修正措施: 无效帧使计数归零，再等待连续 5 帧有效报文\n验证记录: 注入有效、有效、无效、有效序列，期望当前通信超时状态仍保留",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 8,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F004"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-9",
+    "canonical_text": "案例编号: SYN-F005\n现象: 温度在阈值附近时反复退出热降额\n根因: 退出条件遗漏 85 ℃回差和连续 10 s 要求\n修正措施: 按退出温度与保持时间联合判定\n验证记录: 覆盖 86 ℃、85 ℃保持 9 s、85 ℃保持 10 s",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 9,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F005"
+    }
+  },
+  {
+    "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+    "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+    "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+    "unit_id": "failure-row-10",
+    "canonical_text": "案例编号: SYN-F006\n现象: 接口变更后旧的有效请求残留\n根因: 无效标志到来时仍沿用上一帧请求值\n修正措施: 有效性检查失败时本周期采用零请求值\n验证记录: 上一帧有效、本帧无效，检查本周期输出为零请求",
+    "locator": {
+      "sheet": "失效案例",
+      "sheet_part": "xl/worksheets/sheet1.xml",
+      "row": 10,
+      "header_row": 4,
+      "columns": "ABCDE",
+      "record_key": "SYN-F006"
+    }
+  }
+]

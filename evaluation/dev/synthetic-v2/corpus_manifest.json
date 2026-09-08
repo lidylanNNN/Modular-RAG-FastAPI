@@ -1,0 +1,70 @@
+{
+  "dataset_id": "dev-synthetic-v2",
+  "synthetic": true,
+  "split": "dev",
+  "parser_identity": "fixture-locator-v1",
+  "sources": [
+    {
+      "key": "spec_v1",
+      "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+      "revision_id": "b4ea42b0299d43025303cb85e8f8667ea57333e6d18887970e9b5e01e258a9fe",
+      "file_name": "synthetic_control_v1.docx",
+      "path": "corpus/synthetic_control_v1.docx",
+      "file_type": "docx",
+      "version": "1.0",
+      "content_hash": "c29a03eb66690734f4bef0a2941a4339c6596bc277c8b6b6248c754e03ae6855",
+      "parse_artifact_id": "5a9af9ecf3b51a6ca859efc19194517d2064506252b0198cb8c75033f205e7cd",
+      "is_current": false
+    },
+    {
+      "key": "spec_v2",
+      "document_id": "6092aeb4-bb78-5a1a-ae7d-91e6ae76b50b",
+      "revision_id": "f53ac61a0ca8d50c454fc1a123174fe8e11462d237b9d3ddede6aadaf8c1f159",
+      "file_name": "synthetic_control_v2.docx",
+      "path": "corpus/synthetic_control_v2.docx",
+      "file_type": "docx",
+      "version": "2.0",
+      "content_hash": "b1a16f2eab7363b72aefb08d1b93f0f77524512347265bfff7aab9c8b71f8987",
+      "parse_artifact_id": "8714726657c553fccbda27f21a0cf8a8c119c4a92541c3492b7288b8c2c150ba",
+      "is_current": true
+    },
+    {
+      "key": "failures",
+      "document_id": "b1704f3b-7a80-5627-a676-3f13a35bfb55",
+      "revision_id": "bc788e0fa03b72337deaeab252224c4f9204958502ea9b243c969e604ab41400",
+      "file_name": "synthetic_failures.xlsx",
+      "path": "corpus/synthetic_failures.xlsx",
+      "file_type": "xlsx",
+      "version": "1.0",
+      "content_hash": "47d52dad8140b8df73400618a24817adeacbe0cbf7b0014a0e30936f7c0111b6",
+      "parse_artifact_id": "b30a3e4774153ea596b50474eac2f32ec734ccb918ea4d0b7cde8cfbaa4d4b50",
+      "is_current": true
+    },
+    {
+      "key": "interfaces",
+      "document_id": "b6a4b797-4e21-5ef6-9650-a85e36a302ae",
+      "revision_id": "6033d345bf0b4f987c0107d7803a720ec14f8a9baaac0e154ea355143b216b34",
+      "parse_artifact_id": "a3de737cd1dea8b952c9233ccf1ff86ebff3e02c0e70a1844be3691c3deb86f7",
+      "content_hash": "04b16790a96e8e197ccf23636f1a136cd244168bdad2bfcf764a5faae9fc91dc",
+      "file_name": "synthetic_interfaces.xlsx",
+      "path": "corpus/synthetic_interfaces.xlsx",
+      "file_type": "xlsx",
+      "version": "1.0",
+      "is_current": true
+    },
+    {
+      "key": "conflict",
+      "document_id": "76dea989-c9b5-50b0-9d29-2262f468e28f",
+      "revision_id": "ce66bba774b35197c7e941d08387ced7191d681a57b0b94be2ca08c309ef7238",
+      "parse_artifact_id": "205b32e4164dfca7d5bc12727e1c7455bbddbbeda4620d5d02c314b6e3fbbe56",
+      "content_hash": "bc47da7e74e6ade695d457d65daef598ede449d21ab90e9ba7def3015edef17e",
+      "file_name": "synthetic_reset_interface.xlsx",
+      "path": "corpus/synthetic_reset_interface.xlsx",
+      "file_type": "xlsx",
+      "version": "1.0",
+      "is_current": true
+    }
+  ],
+  "notice": "合成资料，非真实业务效果证据。",
+  "corpus_manifest_id": "ab03c2681b328d88acc2a372c2197b0cdd4577c68730f57e23b4aae044f9cd9d"
+}
