@@ -1,0 +1,23 @@
+environment: development
+paths:
+  data_dir: .local
+  documents_dir: .local/documents
+  parsed_dir: .local/parsed
+  artifacts_dir: artifacts
+  model_cache_dir: .local/model-cache
+storage:
+  sqlite_path: .local/rag.sqlite
+elasticsearch:
+  url: http://localhost:9200
+  active_snapshot: null
+retrieval:
+  bm25_top_n: 50
+  dense_top_n: 50
+  rrf_top_m: 100
+  final_top_k: 5
+  rrf_k: 60
+models:
+  embedding_model: BAAI/bge-m3
+  reranker_model: BAAI/bge-reranker-v2-m3
+  llm_model: null
+

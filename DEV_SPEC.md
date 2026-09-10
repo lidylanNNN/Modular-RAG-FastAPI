@@ -1,12 +1,13 @@
 # Engineering RAG — DEV_SPEC
 
-当前规格版本：**v1.3**；产品范围：**V1**；最后更新：**2026-09-08**。
+当前规格版本：**v1.4**；产品范围：**V1**；最后更新：**2026-09-09**。
 
 ## 版本变更目录
 
 | 规格版本 | 日期 | 主要变更 | 对应章节 |
 |---|---|---|---|
-| v1.3（当前） | 2026-09-08 | 定义正式项目目录、模块落位和路径规则；拆分评测数据、维护脚本、单元测试、组件夹具和审查报告；旧开发集移入 archive；同步入口、协议及 CI，保持数据身份不变 | 2.6、7.3；README.md |
+| v1.4（当前） | 2026-09-09 | 细化工程目录的目标文件清单；在开发计划中为各里程碑补充待完成文件/模块，明确真实知识库本地目录与评测目录隔离 | 2.6、7.3 |
+| v1.3 | 2026-09-08 | 定义正式项目目录、模块落位和路径规则；拆分评测数据、维护脚本、单元测试、组件夹具和审查报告；旧开发集移入 archive；同步入口、协议及 CI，保持数据身份不变 | 2.6、7.3；README.md |
 | v1.2 | 2026-09-08 | 统一单索引、N/M/K 检索预算、Source ID 引用、分层评测与 B3a/B3b 对照；前移快照及容器基础；审核补齐基线结果契约、排序评分口径和阶段能力限制；正式文件改为 DEV_SPEC.md | 3.5–3.8、4.2–4.6、4.9、5.3、6.3–6.7、7 |
 | v1.1 | 2026-09-07；跨平台补充于 2026-09-08 | 补充 SourceSpan、Claims 验证、快照发布、原文锚点评测、资源预算、进度表和跨平台要求；加入合成开发集状态 | 3–8；[历史规格](docs/history/engineering-rag_DEV_SPEC_v1.md) |
 | v1（初稿） | 未记录 | 建立四格式解析、统一 Chunk、混合检索、生成和评测的 V1 范围 | 1–9；初稿演变见 Git 历史 |
@@ -23,6 +24,8 @@
 > **v1.2 修订摘要**：删除独立 `Evidence` 事实实体；统一 Elasticsearch 单索引文档；明确 `Retriever Top-N → RRF Top-M → Reranker Top-K`；将 RRF 定位为候选融合与预算控制；Citation 改为请求内 `Source ID` 映射；Evaluation 按 Retrieval / Reranking / Generation 分层；补充 `Union + Reranker` 与 `RRF + Reranker` 对照；同时前移最小 Snapshot、版本生命周期和 Linux 容器骨架，并将 `search_knowledge` 实现纳入 Reranker 闭环。
 
 > **v1.3 修订摘要**：固定第 2.6 节目录规范并迁移现有文件。此次仅调整工程组织与路径，不改变 Chunk / EvalCase 契约、原始语料、题目事实、证据身份或发布门槛。
+
+> **v1.4 修订摘要**：补齐 V1 工程目录目标文件清单，并把开发计划中的每个阶段映射到待完成文件/模块。此次仅细化实施落点，不代表对应文件已经实现。
 
 ---
 
@@ -269,7 +272,7 @@ Modular-RAG-FastAPI/
 ├── .gitattributes                  # 文本换行和二进制文件规则
 ├── .gitignore
 ├── pyproject.toml                  # 规划 M1：Python 包、工具和依赖声明
-├── uv.lock                         # 规划 M1：锁定依赖，和 pyproject.toml 配套
+├── uv.lock                         # 已生成：锁定运行和开发依赖，和 pyproject.toml 配套
 ├── .env.example                    # 规划 M1：环境变量名称及无密钥示例
 ├── configs/                        # 规划 M1：可版本化的非敏感默认配置
 │   ├── default.yaml
@@ -292,24 +295,25 @@ Modular-RAG-FastAPI/
 │   ├── api/                       # FastAPI 路由、HTTP Schema 适配和错误映射
 │   └── evaluation/                # 正式指标、锚点映射、实验执行与报告逻辑
 ├── scripts/
-│   └── evaluation/                # 当前标准库维护命令；支持脚本和模块调用
+│   ├── experiments/              # 正式实验的薄 CLI 入口
+│   └── validation_build/         # 验证集构建与资料校验命令
 │       ├── validate_dataset.py
 │       ├── validate_suite.py
 │       └── build_expansion.py
 ├── tests/
-│   ├── unit/evaluation/           # 当前资料校验器回归测试
+│   ├── unit/validation_build/           # 当前资料校验器回归测试
 │   ├── integration/              # 规划 M4 起：ES / Snapshot / HTTP 集成测试
 │   ├── e2e/                      # 规划：锁定真实模型的端到端验收
 │   └── fixtures/
-│       └── evaluation/           # 组件输入与预期结果，不进入知识库
-├── evaluation/                    # 评测资料根目录，不是可导入的业务包
+│       └── answer_quality/        # 答案质量与证据覆盖组件夹具，不进入知识库
+├── validation_build/             # 验证集构建资料，含 dev/validation/test 划分
 │   ├── README.md
 │   ├── datasets/
 │   │   ├── dev/synthetic-v2/      # 当前 40 题开发集
 │   │   ├── validation/synthetic-cooling-v1/  # 12 题验证草案
 │   │   ├── test/                 # 规划 M11：独立冻结发布集
 │   │   └── archive/synthetic-v1/ # 历史 20 题，仅供回归和追溯
-│   ├── protocols/development.json # 当前未冻结协议；路径基准为 evaluation/
+│   ├── protocols/development.json # 当前未冻结协议；路径基准为 validation_build/
 │   ├── schemas/                  # 评测附属文件的 JSON Schema
 │   └── seeds/                    # 合成构建输入；不可作为摄入资料
 ├── docs/
@@ -323,16 +327,139 @@ Modular-RAG-FastAPI/
 └── .local/                       # 按需生成并忽略：本地数据库、原件和模型缓存
 ```
 
-### 2.6.1 模块归属与依赖
+### 2.6.1 工程文件目标清单
+
+以下清单定义 V1 需要实现的主要文件落点。文件只在对应里程碑真正实现时创建；不得提交空模块来制造进度。相同职责只能有一个主实现，测试和 CLI 只能薄封装公共服务。
+
+```text
+configs/
+├── default.yaml                   # M1：服务、路径、索引、模型和检索默认配置
+├── logging.yaml                   # M1：日志格式、级别、Trace 字段
+└── evaluation.yaml                # M4：实验参数、N/M/K、报告输出目录
+
+src/engineering_rag/
+├── __init__.py                    # M1：包版本与公共导出边界
+├── bootstrap.py                   # M1：配置加载、依赖组装、生命周期入口
+├── contracts/
+│   ├── source.py                  # M1：SourceDocument、Revision、ParseArtifact
+│   ├── chunk.py                   # M1/M3：Chunk、SourceSpan、ChunkFailure
+│   ├── retrieval.py               # M1/M4-M7：Query、Candidate、FinalCandidate、Filter
+│   ├── generation.py              # M8：SourceBinding、Claim、Answer、Citation、Refusal
+│   ├── evaluation.py              # M1/M4-M11：EvalCase、GoldAnchor、Judgment、RunResult
+│   └── errors.py                  # M1：统一错误类型、HTTP/Tool 错误映射输入
+├── config/
+│   ├── settings.py                # M1：强类型配置模型和环境变量覆盖
+│   ├── paths.py                   # M1：跨平台路径解析、.local/artifacts 约束
+│   ├── config_logging.py          # M1：结构化日志初始化
+│   └── preflight.py               # M1/M5：依赖、模型、ES、GPU/CPU 兼容性检查
+├── ingestion/
+│   ├── dispatcher.py              # M1/M2：入库调度、文件类型分发、幂等入口
+│   ├── jobs.py                    # M10：入库任务状态机、重试、取消
+│   ├── parsers/
+│   │   ├── parser_base.py         # M2：Parser 接口和错误约束
+│   │   ├── parser_docx.py         # M2：DOCX 解析
+│   │   ├── parser_xlsx.py         # M2：XLSX 解析
+│   │   ├── parser_pdf.py          # M9：PDF 解析
+│   │   └── parser_pptx.py         # M9：PPTX 解析
+│   └── chunkers/
+│       ├── chunker_base.py        # M3：Chunker 接口和 SourceSpan 校验入口
+│       ├── chunker_docx.py        # M3：DOCX 分块
+│       ├── chunker_xlsx.py        # M3：XLSX 分块
+│       ├── chunker_pdf.py         # M9：PDF 分块
+│       └── chunker_pptx.py        # M9：PPTX 分块
+├── indexing/
+│   ├── es_client.py               # M4：Elasticsearch 客户端封装
+│   ├── mappings.py                # M4/M5：BM25、dense_vector、metadata 映射
+│   ├── snapshots.py               # M4/M5：Snapshot 构建、校验、发布、lease
+│   ├── embeddings.py              # M5：BGE-M3 向量生成和批处理
+│   └── lifecycle.py               # M5：Update/Delete/Rollback/Recovery
+├── retrieval/
+│   ├── bm25.py                    # M4：BM25 召回
+│   ├── dense.py                   # M5：Dense 召回
+│   ├── fusion.py                  # M6：RRF、去重、Top-M 截断
+│   ├── reranker.py                # M7：BGE-Reranker、降级和排序解释
+│   └── service.py                 # M4-M7：统一检索服务入口
+├── generation/
+│   ├── context.py                 # M8：上下文预算和 Source 选择
+│   ├── source_binding.py          # M8：请求内 Source ID 绑定
+│   ├── claims.py                  # M8：声明抽取和证据对齐
+│   ├── llm.py                     # M8：LLM 客户端适配
+│   ├── verifier.py                # M8：语义/数值/版本验证
+│   └── refusal.py                 # M8：拒答判定和错误区分
+├── services/
+│   ├── document_service.py        # M1/M2/M10：入库、删除、任务编排公开入口
+│   ├── query_service.py           # M1/M4/M8：检索/生成统一查询入口
+│   ├── snapshot_service.py        # M4/M5：索引发布、活动指针和恢复入口
+│   └── evaluation_service.py      # M4-M11：评测运行入口
+├── storage/
+│   ├── local_files.py             # M1/M2：.local 原件、解析产物、缓存路径管理
+│   ├── sqlite.py                  # M1/M10：SQLite 连接、迁移和事务
+│   ├── repositories.py            # M1/M2/M5/M10：文档、任务、manifest、lease 仓储
+│   └── manifests.py               # M2/M4/M5：corpus/snapshot manifest 持久化
+├── observability/
+│   ├── trace.py                   # M1：Trace 数据模型、span 记录和序列化
+│   ├── trace_logging.py           # M1：日志字段绑定
+│   └── trace_metrics.py           # M4/M10：latency、候选数量和错误率记录
+├── tools/
+│   └── search_knowledge.py        # M7：Tool 薄适配层
+├── api/
+│   ├── main.py                    # M10：FastAPI app 工厂
+│   ├── dependencies.py            # M10：服务依赖注入
+│   ├── schemas.py                 # M10：HTTP 请求/响应 Schema
+│   └── routes/
+│       ├── health.py              # M10：健康检查
+│       ├── documents.py           # M10：入库/任务/删除
+│       ├── tools.py               # M10：search_knowledge HTTP 包装
+│       └── traces.py              # M10：Trace 查询
+└── evaluation/
+    ├── datasets.py                # M4：读取仓库级 validation_build 数据集
+    ├── anchor_mapping.py          # M4/M5：GoldAnchor 到正式 Chunk 的映射
+    ├── evaluation_metrics.py      # M4-M8：Recall、nDCG、Correctness、Citation 指标
+    ├── judgments.py               # M4-M11：候选相关性标注读写
+    ├── runner.py                  # M4-M11：实验执行
+    └── reports.py                 # M4-M12：报告生成和哈希记录
+
+scripts/
+├── validation_build/
+│   ├── validate_dataset.py        # 已有：评测资料校验
+│   ├── validate_suite.py          # 已有：评测套件校验
+│   └── build_expansion.py         # 已有：合成资料扩展构建
+├── experiments/
+│   └── run_experiment.py          # M4：薄封装 evaluation_service
+└── dev/
+    ├── dev_preflight.py           # M1：本地/容器预检入口
+    └── ingest_local.py            # M2/M10：本地原件入库调试入口
+
+tests/
+├── unit/                          # M1 起：按 src/engineering_rag 职责镜像组织
+├── integration/                   # M4 起：ES、Snapshot、HTTP、持久化测试
+├── e2e/                           # M8/M11：真实模型和端到端验收
+└── fixtures/                      # 测试夹具；不得作为知识库摄入
+
+.local/
+├── documents/                     # 本地真实知识库原件，不提交 Git
+├── parsed/                        # 解析产物，不提交 Git
+├── rag.sqlite                     # 本地任务/manifest/lease 数据库，不提交 Git
+└── model-cache/                   # 模型缓存，不提交 Git
+
+artifacts/
+├── traces/                        # 运行 Trace
+├── evaluation-runs/               # 实验输出
+└── reports/                       # 临时报告；需归档的结论复制到 docs/reports/
+```
+
+### 2.6.2 模块归属与依赖
 
 - 应用源码统一放在 `src/engineering_rag/`，不再平行引入承载同类业务的 `app/`、`backend/` 或根目录业务模块。
 - `services/` 提供第 2.4 节要求的公开服务入口，协调 Ingestion、Indexing、Retrieval、Generation 和 Storage；HTTP、Tool、CLI 复用这些入口。它们不相互复制检索、发布或生成逻辑。
 - `contracts/` 和 `config/` 不导入 API、Tool 或测试。业务包不能导入 `scripts/`、`tests/`，也不能把评测目录作为运行依赖。`storage/` 提供持久化适配，发布步骤由 services/indexing 编排，不在 API 路由中操作活动指针。
-- `src/engineering_rag/evaluation/` 承载正式评测实现，按公开服务接口调用系统；仓库级 `evaluation/` 只放数据、协议、Schema 和构建输入。这两者名称相同但用途和导入边界不同。
-- `scripts/evaluation/` 现有脚本仅检查/构建文件夹具，使用 Python 标准库；今后新增实验 CLI 应薄封装正式评测实现，不复制指标逻辑。测试允许导入这些维护脚本，但不反向依赖测试。
-- 测试路径按被测职责镜像组织；当前 `tests/unit/evaluation/` 的回归测试属于资料校验器。`tests/fixtures/evaluation/` 中未接入实现的用例不得计为测试通过。
+- 仅 `src/engineering_rag/evaluation/` 使用 `evaluation` 目录名，承载正式指标、实验执行与报告实现。仓库级 `validation_build/` 存放验证集构建资料，包括 dev、validation、test 划分的数据、协议、Schema 和构建输入。
+- `scripts/validation_build/` 仅负责验证集构建和资料校验，使用 Python 标准库；正式实验 CLI 放入 `scripts/experiments/`，薄封装公开服务入口，不复制指标逻辑。测试允许导入这些维护脚本，但不反向依赖测试。
+- 测试路径按被测职责镜像组织；当前 `tests/unit/validation_build/` 的回归测试属于资料校验器。`tests/fixtures/answer_quality/` 中未接入实现的用例不得计为测试通过。
+- 本地真实知识库原件默认放入 `.local/documents/` 或由配置指向外部绝对路径；仓库级 `validation_build/**/corpus/` 只属于评测数据集，不是生产知识库目录。
+- 新增骨架文件应避免重复 basename；除 Python 包约定的 `__init__.py`、Markdown 常规入口 `README.md`、评测数据集固定文件名（`cases.jsonl`、`annotations.jsonl`、`corpus_manifest.json`、`source_units.json`、`cases.md`）外，重名文件必须加模块前缀区分，例如 `parser_docx.py` 与 `chunker_docx.py`。
 
-### 2.6.2 数据集内部结构与路径
+### 2.6.3 数据集内部结构与路径
 
 每个有独立 manifest 的数据集保持自包含目录：
 
@@ -348,12 +475,12 @@ Modular-RAG-FastAPI/
 ```
 
 - `sources.path` 始终相对于所在 manifest 的数据集根目录；迁移外层目录不重算原件哈希、revision_id、parse_artifact_id 或 corpus_manifest_id，不修改 GoldAnchor。
-- `evaluation/protocols/development.json` 声明 `path_base=evaluation_root`；其中 datasets、historical_fixtures、Schema 和规格路径均相对于仓库 `evaluation/` 解析，不能相对于协议文件目录或当前工作目录猜测。数据集选择由协议显式列举，禁止递归扫描 archive 参与当前评测。
+- `validation_build/protocols/development.json` 声明 `path_base=validation_build_root`；其中 datasets、historical_fixtures、Schema 和规格路径均相对于仓库 `validation_build/` 解析，不能相对于协议文件目录或当前工作目录猜测。数据集选择由协议显式列举，禁止递归扫描 archive 参与当前评测。
 - 当前归档和修订集保留相同原件副本是有意的快照隔离：保留身份和可复现性，不改成跨目录软链接。二者属于相同泄漏组，不得当成独立开发/验证样本。后续大规模或真实私有语料采用外部制品存储时需另行定义获取及哈希校验协议。
 - `seeds/` 是构建输入，原件是检索事实源；生成问题、答案、Source Map 模拟数据和审查报告均不可入库。仅按 manifest 的 sources.path 摄入原件。
 - 脚本默认路径基于 `__file__` 定位仓库；显式 CLI 数据目录参数相对于调用方当前目录。应用运行数据目录通过配置传入，生产部署应解析为绝对路径；不硬编码盘符或用户主目录。
 
-### 2.6.3 生成物与变更验收
+### 2.6.4 生成物与变更验收
 
 - `artifacts/`、`.local/`、`.env`、解释器环境和缓存不提交 Git。需要保留的人工确认实验报告归档至 `docs/reports/`，并引用数据/配置哈希，不把临时输出复制进 corpus。
 - 当前已有 `.artifact-work/` 属于本地制作缓存，继续忽略且不被任何正式运行命令依赖；后续预览和日志统一写入 `artifacts/`。
@@ -1247,7 +1374,7 @@ class EvalCase(BaseModel):
 - 先建立开发 fixtures；验证集用于调参，冻结测试集只用于最终评测。按源文档族/业务案例分组切分，近重复问题、同一案例的不同表述不能跨验证/测试集合泄漏。
 - V1 初始发布目标：测试集至少 120 题，其中至少 80 道可回答题、40 道不可回答题；四种格式各至少 15 道可回答题。版本冲突、精确术语、语义改写、历史失效、多证据各至少 10 题，类别可重叠。数量是目标，非现有数据规模。
 - 每道测试题核对原文证据与 required_facts；歧义标签先裁决再冻结。无可用真实语料时可用脱敏/合成 fixtures 开发，但不能据此宣称真实汽车研发业务效果。
-- `evaluation/protocols/development.json` 固定样本划分、指标定义、模型/Prompt/配置版本、人工评分规程与 6.7 的门槛；测试解封前冻结并记录哈希。未填写或未冻结不能发布。
+- `validation_build/protocols/development.json` 固定样本划分、指标定义、模型/Prompt/配置版本、人工评分规程与 6.7 的门槛；测试解封前冻结并记录哈希。未填写或未冻结不能发布。
 - 查看测试结果后若据此改配置或修标签，原测试集转为开发数据；新的发布结论需要新的未参与调参的冻结保留集。失败结果可以如实报告，不得通过事后降低门槛改判通过。
 
 ## Retrieval Metrics
@@ -1402,7 +1529,7 @@ Tool 返回完整 Final Top-K，不加载 LLM tokenizer，也不执行 LLM 上�
 
 离线与在线模型共享硬件时采用资源信号量，优先在线请求；阻塞推理不直接运行在异步 Web event loop 内。记录硬件、冷/热启动、并发、语料规模和 token 用量，分别报告检索与整体请求 p50/p95。
 
-`evaluation/protocols/development.json` 还须填写目标硬件、规模、并发和检索/整体 p95 上限（毫秒）。性能门槛可在验证集预跑后确定，但必须在测试解封前冻结；缺值阻止发布，不能用 90 s 故障 deadline 代替性能目标。
+`validation_build/protocols/development.json` 还须填写目标硬件、规模、并发和检索/整体 p95 上限（毫秒）。性能门槛可在验证集预跑后确定，但必须在测试解封前冻结；缺值阻止发布，不能用 90 s 故障 deadline 代替性能目标。
 
 ---
 
@@ -1644,7 +1771,7 @@ Should-answer-but-refused
 - Tool 可独立调用；
 - README 可让另一台机器完成启动。
 
-以上是功能门槛，发布还必须同时满足下表。数值均为 **V1 初始 Target，尚未实测**，可在验证阶段调整；最终值必须在解封测试集前写入冻结的 `evaluation/protocols/development.json`。不得以测试失败为由事后降低标准。
+以上是功能门槛，发布还必须同时满足下表。数值均为 **V1 初始 Target，尚未实测**，可在验证阶段调整；最终值必须在解封测试集前写入冻结的 `validation_build/protocols/development.json`。不得以测试失败为由事后降低标准。
 
 | 质量项 | 初始发布目标 | 计分口径 |
 |---|---|---|
@@ -1754,27 +1881,27 @@ Generation / Citation 在 M8 进入第二闭环，再补 PDF / PPTX，避免四�
 
 # 7.3 Development Progress
 
-最后更新：2026-09-08。
+最后更新：2026-09-09。
 
-当前阶段：开发准备。DEV_SPEC v1.3 的规格修订已完成；已有 40 题修订合成开发集、12 题独立文档族验证草案、评测协议草案及原文/分组校验器。旧 20 题作为历史夹具保留，不能重复计为独立数据。人工复核待完成，尚无应用实现、冻结测试集或模型实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
+当前阶段：开发准备。DEV_SPEC v1.4 的规格修订已完成；已有 40 题修订合成开发集、12 题独立文档族验证草案、评测协议草案及原文/分组校验器。旧 20 题作为历史夹具保留，不能重复计为独立数据。人工复核待完成，尚无应用实现、冻结测试集或模型实测报告。以下状态以本仓库可核查产物为准，规格中的模型示例不计为功能实现。
 
 状态：**未开始 → 进行中 → 待验收 → 已完成**；遇到无法继续的问题标记 **阻塞**，同时写明原因和解除条件。只有满足第 8 章 DoD 且提供验收依据，才能标记已完成。
 
-| 阶段 | 主要交付物 | 完成所需验收依据 | 当前状态 | 实际产物 / 验证记录 |
-|---|---|---|---|---|
-| M0 评测准备 | 开发 fixtures、原文锚点、验证集及评测协议草案 | 锚点可定位；可回答/不可回答标签经核对；数据划分明确 | 进行中 | evaluation/README.md：40 题 dev + 12 题 validation 草案；原文/分组校验及校验器回归测试通过；人工复核、真实候选标注待完成 |
-| M1 工程基础 | 核心模型、配置、模型预检、最小 Trace、依赖锁定、Linux Container Skeleton、公共服务层 | Schema 验证、配置加载、模型兼容性预检、容器骨架启动和 Trace 测试记录 | 未开始 | — |
-| M2 DOCX/XLSX 解析 | 两类 Parser、定位目录、原文与解析产物存储 | 两类正常/异常 fixture 通过；原文位置可回溯 | 未开始 | — |
-| M3 DOCX/XLSX 分块 | 两类 Chunker、SourceSpan 校验、超长记录处理 | 分块稳定性、边界、来源映射和长记录尾部测试通过 | 未开始 | — |
-| M4 BM25 | 全文索引、检索、最小 Snapshot Build/Publish、B0 评测报告 | 中文/精确术语/过滤测试通过；首份验证集检索结果可复现；最小快照可验证后发布 | 未开始 | — |
-| M5 Dense 与生命周期 | 向量索引、检索、完整快照、Update/Delete/Rollback/Recovery | B1 结果；双路一致性、幂等、更新删除、失败不发布、回滚及重启恢复测试 | 未开始 | — |
-| M6 RRF | 融合、去重、Top-M Candidate Budget、B0–B2 对照 | RRF/过滤测试；N/M/k 配置可追踪；B0–B2 对照可复现 | 未开始 | — |
-| M7 Reranker 与 Tool | 精排、降级、B3a/B3b、search_knowledge、第一里程碑报告 | Union+Reranker vs RRF+Reranker 对照；Tool 可独立调用；降级 Trace；第 7.2 节全部交付物齐备 | 未开始 | — |
-| M8 生成与 Citation | Source Binding、Claims、生成、Citation/语义验证、有限纠正、拒答 | Source ID/引用/数值/版本/拒答及模型异常测试；验证集生成结果 | 未开始 | — |
-| M9 PDF/PPTX 扩展 | 两类 Parser/Chunker、四格式端到端与版本/Citation场景 | 四格式端到端通过；既有 Update/Delete/Version/Citation 机制在新增格式上验收 | 未开始 | — |
-| M10 HTTP 与任务运行 | FastAPI、持久化入库任务、Trace API、资源限额 | 请求/响应、错误码、任务重启、队列与超时验收记录 | 未开始 | — |
-| M11 发布评测 | 冻结协议/测试集、Baseline、Ablation、人工评分、Bad Case | 配置与数据哈希、逐题结果、复核记录及第 6.7 节质量结论 | 未开始 | — |
-| M12 交付与发布 | 最终 Docker Compose、持久卷、启动文档、真实实验报告 | 第二台机器 clean-machine 启动记录；全部发布门槛与 System DoD 核对通过 | 未开始 | — |
+| 阶段 | 主要交付物 | 待完成文件/模块 | 完成所需验收依据 | 当前状态 | 实际产物 / 验证记录 |
+|---|---|---|---|---|---|
+| M0 评测准备 | 开发 fixtures、原文锚点、验证集及评测协议草案 | `validation_build/**`、`scripts/validation_build/validate_dataset.py`、`scripts/validation_build/validate_suite.py`、`tests/unit/validation_build/**`、`tests/fixtures/answer_quality/**`、`docs/reviews/**` | 锚点可定位；可回答/不可回答标签经核对；数据划分明确 | 进行中 | validation_build/README.md：40 题 dev + 12 题 validation 草案；原文/分组校验及校验器回归测试通过；人工复核、真实候选标注待完成 |
+| M1 工程基础 | 核心模型、配置、模型预检、最小 Trace、依赖锁定、Linux Container Skeleton、公共服务层 | `pyproject.toml`、`uv.lock`、`.env.example`、`configs/default.yaml`、`configs/logging.yaml`、`src/engineering_rag/bootstrap.py`、`src/engineering_rag/contracts/{source,chunk,retrieval,evaluation,errors}.py`、`src/engineering_rag/config/{settings,paths,config_logging,preflight}.py`、`src/engineering_rag/observability/{trace,trace_logging}.py`、`src/engineering_rag/services/{document_service,query_service}.py`、`src/engineering_rag/storage/{local_files,sqlite,repositories}.py`、`deploy/{Dockerfile,compose.yaml}`、`scripts/dev/dev_preflight.py`、`tests/unit/{contracts,config,observability,services,storage}/**` | Schema 验证、配置加载、模型兼容性预检、容器骨架启动和 Trace 测试记录 | 进行中 | 工程骨架、配置样例、Docker/Compose 骨架和开发脚本已创建；所有函数具备三单引号 docstring；uv 已配置 dev 依赖组并生成 `uv.lock`；Python 3.12 `.venv` 已安装项目及开发依赖，14 项资料校验器 pytest 回归测试通过；模型/ES 预检和 M1 业务单元测试待完成 |
+| M2 DOCX/XLSX 解析 | 两类 Parser、定位目录、原文与解析产物存储 | `src/engineering_rag/ingestion/dispatcher.py`、`src/engineering_rag/ingestion/parsers/{parser_base,parser_docx,parser_xlsx}.py`、`src/engineering_rag/storage/{local_files,repositories,manifests}.py`、`src/engineering_rag/services/document_service.py`、`scripts/dev/ingest_local.py`、`tests/unit/ingestion/parsers/**`、`tests/fixtures/documents/{docx,xlsx}/**` | 两类正常/异常 fixture 通过；原文位置可回溯 | 未开始 | — |
+| M3 DOCX/XLSX 分块 | 两类 Chunker、SourceSpan 校验、超长记录处理 | `src/engineering_rag/contracts/chunk.py`、`src/engineering_rag/ingestion/chunkers/{chunker_base,chunker_docx,chunker_xlsx}.py`、`src/engineering_rag/ingestion/dispatcher.py`、`tests/unit/ingestion/chunkers/**`、`tests/fixtures/chunking/**` | 分块稳定性、边界、来源映射和长记录尾部测试通过 | 未开始 | — |
+| M4 BM25 | 全文索引、检索、最小 Snapshot Build/Publish、B0 评测报告 | `configs/evaluation.yaml`、`src/engineering_rag/indexing/{es_client,mappings,snapshots}.py`、`src/engineering_rag/retrieval/{bm25,service}.py`、`src/engineering_rag/services/{snapshot_service,evaluation_service}.py`、`src/engineering_rag/evaluation/{datasets,anchor_mapping,metrics,runner,reports}.py`、`scripts/experiments/run_experiment.py`、`tests/integration/{indexing,retrieval}/**` | 中文/精确术语/过滤测试通过；首份验证集检索结果可复现；最小快照可验证后发布 | 未开始 | — |
+| M5 Dense 与生命周期 | 向量索引、检索、完整快照、Update/Delete/Rollback/Recovery | `src/engineering_rag/indexing/{embeddings,mappings,snapshots,lifecycle}.py`、`src/engineering_rag/retrieval/dense.py`、`src/engineering_rag/config/preflight.py`、`src/engineering_rag/services/{document_service,snapshot_service}.py`、`src/engineering_rag/storage/{repositories,manifests}.py`、`tests/integration/{dense,lifecycle,snapshot}/**` | B1 结果；双路一致性、幂等、更新删除、失败不发布、回滚及重启恢复测试 | 未开始 | — |
+| M6 RRF | 融合、去重、Top-M Candidate Budget、B0–B2 对照 | `src/engineering_rag/retrieval/{fusion,service}.py`、`src/engineering_rag/contracts/retrieval.py`、`src/engineering_rag/observability/trace_metrics.py`、`src/engineering_rag/evaluation/{evaluation_metrics,runner,reports}.py`、`tests/unit/retrieval/test_fusion.py`、`tests/integration/retrieval/test_hybrid_budget.py` | RRF/过滤测试；N/M/k 配置可追踪；B0–B2 对照可复现 | 未开始 | — |
+| M7 Reranker 与 Tool | 精排、降级、B3a/B3b、search_knowledge、第一里程碑报告 | `src/engineering_rag/retrieval/{reranker,service}.py`、`src/engineering_rag/tools/search_knowledge.py`、`src/engineering_rag/services/query_service.py`、`src/engineering_rag/contracts/retrieval.py`、`src/engineering_rag/evaluation/{evaluation_metrics,runner,reports}.py`、`tests/unit/{retrieval,tools}/**`、`tests/integration/tools/test_search_knowledge.py`、`docs/reports/milestone-1.md` | Union+Reranker vs RRF+Reranker 对照；Tool 可独立调用；降级 Trace；第 7.2 节全部交付物齐备 | 未开始 | — |
+| M8 生成与 Citation | Source Binding、Claims、生成、Citation/语义验证、有限纠正、拒答 | `src/engineering_rag/contracts/generation.py`、`src/engineering_rag/generation/{context,source_binding,claims,llm,verifier,refusal}.py`、`src/engineering_rag/services/query_service.py`、`src/engineering_rag/evaluation/{evaluation_metrics,runner,reports}.py`、`tests/unit/generation/**`、`tests/e2e/test_generation_eval.py` | Source ID/引用/数值/版本/拒答及模型异常测试；验证集生成结果 | 未开始 | — |
+| M9 PDF/PPTX 扩展 | 两类 Parser/Chunker、四格式端到端与版本/Citation场景 | `src/engineering_rag/ingestion/parsers/{parser_pdf,parser_pptx}.py`、`src/engineering_rag/ingestion/chunkers/{chunker_pdf,chunker_pptx}.py`、`src/engineering_rag/contracts/chunk.py`、`validation_build/datasets/dev/*/corpus/*.{pdf,pptx}`、`tests/unit/ingestion/{parsers,chunkers}/**`、`tests/e2e/test_four_format_flow.py` | 四格式端到端通过；既有 Update/Delete/Version/Citation 机制在新增格式上验收 | 未开始 | — |
+| M10 HTTP 与任务运行 | FastAPI、持久化入库任务、Trace API、资源限额 | `src/engineering_rag/api/{main,dependencies,schemas}.py`、`src/engineering_rag/api/routes/{health,documents,tools,traces}.py`、`src/engineering_rag/ingestion/jobs.py`、`src/engineering_rag/services/{document_service,query_service}.py`、`src/engineering_rag/storage/{sqlite,repositories}.py`、`tests/integration/api/**`、`deploy/compose.yaml` | 请求/响应、错误码、任务重启、队列与超时验收记录 | 未开始 | — |
+| M11 发布评测 | 冻结协议/测试集、Baseline、Ablation、人工评分、Bad Case | `validation_build/datasets/test/**`、`validation_build/protocols/release.json`、`validation_build/schemas/**`、`src/engineering_rag/evaluation/{judgments,runner,reports}.py`、`docs/reports/release-baseline.md`、`docs/reports/bad-cases.md`、`tests/e2e/test_release_protocol.py` | 配置与数据哈希、逐题结果、复核记录及第 6.7 节质量结论 | 未开始 | — |
+| M12 交付与发布 | 最终 Docker Compose、持久卷、启动文档、真实实验报告 | `deploy/{Dockerfile,compose.yaml}`、`README.md`、`.env.example`、`configs/default.yaml`、`docs/reports/final-system-report.md`、`docs/reports/clean-machine-run.md`、`tests/e2e/test_clean_machine_smoke.py` | 第二台机器 clean-machine 启动记录；全部发布门槛与 System DoD 核对通过 | 未开始 | — |
 
 进度汇总：**已验收 0 / 13 个阶段**。阶段工作量不同，该计数不代表总工时完成百分比。
 

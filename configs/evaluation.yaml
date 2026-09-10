@@ -1,0 +1,15 @@
+default_protocol: validation_build/protocols/development.json
+output_dir: artifacts/evaluation-runs
+reports_dir: artifacts/reports
+retrieval_profiles:
+  b0:
+    bm25: true
+    dense: false
+    rrf: false
+    reranker: false
+  b3b:
+    bm25: true
+    dense: true
+    rrf: true
+    reranker: true
+

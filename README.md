@@ -9,23 +9,24 @@
 | 路径 | 当前用途 |
 |---|---|
 | [DEV_SPEC.md](DEV_SPEC.md) | 唯一正式规格；第 2.6 节定义完整目录规划和模块依赖 |
-| [evaluation/](evaluation/README.md) | 数据集、协议、Schema、合成构建输入；历史数据位于 datasets/archive |
+| [validation_build/](validation_build/README.md) | 数据集、协议、Schema、合成构建输入；历史数据位于 datasets/archive |
 | [scripts/](scripts/README.md) | 资料构建与校验命令 |
 | [tests/](tests/README.md) | 单元测试及组件夹具 |
 | docs/ | 历史规格、审查记录；后续归档实验报告 |
 | .github/workflows/ | Windows / Linux CI |
 
-`src/engineering_rag/`、`configs/`、`deploy/` 和依赖锁文件按 DEV_SPEC 在 M1 起创建，目前尚未实现。运行输出写入被忽略的 `artifacts/` 或 `.local/`。
+`src/engineering_rag/`、`configs/`、`deploy/` 和 `pyproject.toml` 骨架已按 DEV_SPEC 创建；业务路径仍以占位边界为主，尚未实现真实入库、索引、检索或生成。运行输出写入被忽略的 `artifacts/` 或 `.local/`。
 
 ## 当前可运行的检查
 
-使用已有 Python 3.11 / 3.12；校验器和测试只依赖标准库，无需安装项目依赖。在仓库根目录运行：
+使用 uv 管理 Python 3.11 / 3.12 和项目环境。在仓库根目录运行，`uv sync` 会创建 `.venv` 并安装锁定的运行及开发依赖（包括 pytest）：
 
 ```bash
-python -X utf8 scripts/evaluation/validate_suite.py
-python -X utf8 -m unittest discover -s tests -t . -p "test_*.py"
+uv sync --locked
+uv run --locked python -X utf8 scripts/validation_build/validate_suite.py
+uv run --locked pytest tests
 ```
 
-Linux 可将命令中的 `python` 换成已有的 `python3`。校验脚本也支持通过绝对路径从仓库外调用；这些命令不是启动 RAG 服务。
+`uv run` 自动使用 `.venv`，无需手动激活。依赖声明位于 `pyproject.toml`，解析结果记录在 `uv.lock`；修改依赖后运行 `uv lock` 并提交锁文件。校验脚本也支持通过绝对路径从仓库外调用；这些命令不是启动 RAG 服务。
 
-只将数据集 manifest 明确列出的原件入库，不能递归摄入题目、答案、协议或测试夹具。使用方法见 [评测说明](evaluation/README.md)。
+只将数据集 manifest 明确列出的原件入库，不能递归摄入题目、答案、协议或测试夹具。使用方法见 [评测说明](validation_build/README.md)。
